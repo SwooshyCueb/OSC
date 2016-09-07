@@ -1,6 +1,15 @@
-TEMPLATE = app
-CONFIG += console c++11
-CONFIG -= app_bundle
-CONFIG -= qt
+TEMPLATE = subdirs
 
-SOURCES += main.cpp
+SUBDIRS = \
+    glib \
+    rocksdb \
+    OnlineShoppingCenter
+
+glib.subdir = externs/glib
+glib.makefile = Makefile.glib
+
+rocksdb.subdir = externs/rocksdb
+
+OnlineShoppingCenter.subdir = OnlineShoppingCenter
+OnlineShoppingCenter.depends = glib rocksdb
+
