@@ -20,4 +20,11 @@ LIBS += $${OUT_PWD}/../externs/glib/gthread/.libs/libgthread-2.0.a
 LIBS += -pthread  -lpcre
 
 
-SOURCES += main.cpp
+SOURCES += \
+    main.cpp \
+    product.cpp \
+    shoppingcart.cpp
+
+HEADERS += \
+    product.h \
+    shoppingcart.h
