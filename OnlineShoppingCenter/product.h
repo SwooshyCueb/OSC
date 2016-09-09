@@ -1,7 +1,7 @@
 #ifndef PRODUCT_H
 #define PRODUCT_H
 
-#import <string>
+#include <string>
 
 class Product
 {

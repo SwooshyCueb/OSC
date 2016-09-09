@@ -54,7 +54,7 @@ int ShoppingCart::deleteProduct(Product p) {
         product_count.erase(p.getUPC());
 
 
-        for (int i = 0; i < cart.size(); i++) {
+        for (uint i = 0; i < cart.size(); i++) {
             if (p.getUPC() == cart[i].getUPC()) {
                 cart.erase(cart.begin() + i);
                 return 1;
@@ -71,7 +71,7 @@ void ShoppingCart::print() {
     }
     else {
         std::cout << "Product\t UPC\t Catagory\t Price\t Quantity" << std::endl;
-        for (int i = 0; i < cart.size(); i++) {
+        for (uint i = 0; i < cart.size(); i++) {
             cart[i].print();
             std::cout << "\t " << product_count[cart[i].getUPC()] << std::endl;
         }
