@@ -1,34 +1,42 @@
 #ifndef PRODUCT_H
 #define PRODUCT_H
 
+#import <string>
 
 class Product
 {
-    int upc;
-    std::string name;
-    float price = 0;
-    std::string catagory;
-    int quantity;
 
 public:
     Product();
+    Product(int, std::string, float, std::string, int);
 
-    int setUPC(int upc);
+    int setUPC(int new_upc);
     int getUPC();
 
-    int setName(string name);
-    string getName();
+    int setName(std::string new_name);
+    std::string getName();
 
-    int setPrice(float price);
+    int setPrice(float new_price);
     float getPrice();
 
-    int setCatagory(string catagory);
-    string getCatagory();
+    int setCatagory(std::string new_catagory);
+    std::string getCatagory();
 
-    int setQuantity(int quantity);
+    int setQuantity(int new_quantity);
     int getQuantity();
 
-    string toString();
+    void print();
+
+    friend std::ostream& operator<<(std::ostream&, const Product&);
+
+private:
+    int UPC;
+    int quantity;
+    float price = 0;
+    std::string catagory;
+    std::string name;
+
+
 
 };
 
