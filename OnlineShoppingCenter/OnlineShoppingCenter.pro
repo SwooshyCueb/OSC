@@ -23,8 +23,18 @@ LIBS += -pthread  -lpcre
 SOURCES += \
     main.cpp \
     product.cpp \
-    shoppingcart.cpp
+    shoppingcart.cpp \
+    storagesystem.cpp \
+    shippingaddress.cpp \
+    user.cpp \
+    paymentinfo.cpp \
+    transactionhistory.cpp
 
 HEADERS += \
     product.h \
-    shoppingcart.h
+    shoppingcart.h \
+    storagesystem.h \
+    shippingaddress.h \
+    user.h \
+    paymentinfo.h \
+    transactionhistory.h
