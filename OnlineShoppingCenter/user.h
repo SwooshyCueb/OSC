@@ -1,28 +1,26 @@
 #ifndef USER_H
 #define USER_H
 
-
 #include "shippingaddress.h"
-//#include "transactionhistory.h"
+#include "transactionhistory.h"
+#include "paymentinfo.h"
 
+using namespace std;
 
 class User
 {
 public:
-    User();
-    User(std::string, ShippingAddress, int, std::string, int, int, TransactionHistory);
+    User(string new_user_name, TransactionHistory new_transaction_history);
+    User(string new_user_name);
 
-    int changeCreditCard(int, string, int);
-    int changeShippingAddress(ShippingAddress shipping_address);
-    //int getTransactionHistory();
+    int changeCreditCard(PaymentInfo new_cc);
+    int changeShippingAddress(ShippingAddress new_shipping_address);
 
 
 private:
-    std::string user_name;
+    string user_name;
     ShippingAddress shipping_address;
-    int credit_card_num;
-    std::string credit_card_exp;
-    int credit_card_cv2;
+    PaymentInfo payment_info;
     int transaction_history_id;
     TransactionHistory transaction_history;
 
