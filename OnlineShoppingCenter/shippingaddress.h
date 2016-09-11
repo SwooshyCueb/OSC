@@ -1,38 +1,52 @@
 #ifndef SHIPPINGADDRESS_H
 #define SHIPPINGADDRESS_H
 
+#include <string>
 
-#import <string>
+#define S_NAME_SET 1
+#define S_STREET_SET 2
+#define S_CITY_SET 4
+#define S_STATE_SET 8
+#define S_ZIP_SET 16
+#define S_COUNTRY_SET 32
+
+#define S_ALL_SET 63
+
+using namespace std;
 
 class ShippingAddress
 {
 
 public:
     ShippingAddress();
-    ShippingAddress(std::string, std::string, std::string, std::string, int, std::string);
+    ShippingAddress(string new_shipping_name, string new_street,
+                    string new_city, string new_state, unsigned int new_zip,
+                    string new_country);
 
-    int changeShippingName(std::string new_shipping_name);
+    int changeShippingName(string new_shipping_name);
 
-    int changeStreet(std::string new_street);
+    int changeStreet(string new_street);
 
-    int changeCity(std::string new_city);
+    int changeCity(string new_city);
 
-    int changeState(std::string new_state);
+    int changeState(string new_state);
 
-    int changeZip(int new_zip);
+    int changeZip(unsigned int new_zip);
 
-    int changeCountry(std::string new_country);
-
+    int changeCountry(string new_country);
 
     void print();
 
+    string shipping_name;
+    string street;
+    string city;
+    string state;
+    unsigned int zip;
+    string country;
+    bool is_set = false;
+
 private:
-    std::string shipping_name;
-    std::string street;
-    std::string city;
-    std::string state;
-    int zip;
-    std::string country;
+    unsigned int parts_set = 0;
 };
 
 
