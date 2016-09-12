@@ -23,6 +23,8 @@ LIBS += $${OUT_PWD}/../externs/glib/gobject/.libs/libgobject-2.0.a
 LIBS += $${OUT_PWD}/../externs/glib/gthread/.libs/libgthread-2.0.a
 LIBS += -pthread  -lpcre
 
+LIBS += -luuid
+
 
 SOURCES += \
     main.cpp \
