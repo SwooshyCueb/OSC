@@ -71,3 +71,9 @@ Thumbs.db
 *.dll
 *.exe
 
+# Changes to externs must be committed epxlicitly.
+externs/
+!/externs/*/*.pro
+
+# Stray files that have ended up in the repo at some point before
+*.pdf
