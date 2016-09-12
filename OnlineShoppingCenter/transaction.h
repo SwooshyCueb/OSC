@@ -6,24 +6,23 @@
 #include "shippingaddress.h"
 #include "paymentinfo.h"
 
-#include "uuid/uuid.h"
+#include <uuid/uuid.h>
+#include <ctime>
+
+using namespace std;
 
 class Transaction
 {
 public:
-    Transaction();
     Transaction(ShoppingCart cart);
     Transaction(ShoppingCart cart, uuid_t id);
-    void chargeCreditCart(float amt);
-    void changeProductQuantity(int a, int b);
-    void addTransactionToHistory(std::string s, int a);
+    void chargeCreditCard();
 
-
-private:
     uuid_t transaction_id;
-    std::string transaction_date;
+    tm transaction_date;
     ShoppingCart shopping_cart;
     float transaction_amount;
+    bool is_finalized = false;
 
 };
 

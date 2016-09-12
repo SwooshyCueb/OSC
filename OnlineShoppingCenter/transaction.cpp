@@ -2,25 +2,22 @@
 #include <string>
 
 using namespace std;
-Transaction::Transaction()
-{
-
-}
 
 Transaction::Transaction(ShoppingCart cart) {
-    this->shopping_cart = cart;
+    shopping_cart = cart;
+    uuid_generate(transaction_id);
+    // Calculate total, store in transaction_amount
 }
 
-void Transaction::chargeCreditCart(float amt) {
-    this->transaction_amount = amt;
+Transaction::Transaction(ShoppingCart cart, uuid_t id) {
+    shopping_cart = cart;
+    uuid_copy(transaction_id, id);
+    // Calculate total, store in transaction_amount
 }
 
-void Transaction::changeProductQuantity(int a, int b) {
-    ///IDK what this is tbh - if I had to guess, this is more of a shopping cart thing to deal with
+void Transaction::chargeCreditCard() {
+    time_t t = time(NULL);
+    transaction_date = *(gmtime(&t));
+    is_finalized = true;
 }
-/*
-void Transaction::addTransactionToHistory(string s, int a) {
-    this->transaction_date = s;
-    this->transaction_id = a;
-}
-*/
+
