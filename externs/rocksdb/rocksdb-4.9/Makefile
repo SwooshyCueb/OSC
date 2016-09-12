@@ -1278,19 +1278,19 @@ libsnappy.a:
 	cp snappy-1.1.3/.libs/libsnappy.a .
 
 liblz4.a:
-	   -rm -rf lz4-r127
-	   curl -O https://codeload.github.com/Cyan4973/lz4/tar.gz/r127
-	   mv r127 lz4-r127.tar.gz
-	   tar xvzf lz4-r127.tar.gz
-	   cd lz4-r127/lib && make CFLAGS='-fPIC' all
-	   cp lz4-r127/lib/liblz4.a .
+	   -rm -rf lz4-r131
+	   curl -O https://codeload.github.com/Cyan4973/lz4/tar.gz/r131
+	   mv r131 lz4-r131.tar.gz
+	   tar xvzf lz4-r131.tar.gz
+	   cd lz4-r131/lib && make CFLAGS='-fPIC' all
+	   cp lz4-r131/lib/liblz4.a .
 
 # A version of each $(LIBOBJECTS) compiled with -fPIC and a fixed set of static compression libraries
 java_static_libobjects = $(patsubst %,jls/%,$(LIBOBJECTS))
 CLEAN_FILES += jls
 
 JAVA_STATIC_FLAGS = -DZLIB -DBZIP2 -DSNAPPY -DLZ4
-JAVA_STATIC_INCLUDES = -I./zlib-1.2.8 -I./bzip2-1.0.6 -I./snappy-1.1.1 -I./lz4-r127/lib
+JAVA_STATIC_INCLUDES = -I./zlib-1.2.8 -I./bzip2-1.0.6 -I./snappy-1.1.3 -I./lz4-r131/lib
 
 $(java_static_libobjects): jls/%.o: %.cc libz.a libbz2.a libsnappy.a liblz4.a
 	$(AM_V_CC)mkdir -p $(@D) && $(CXX) $(CXXFLAGS) $(JAVA_STATIC_FLAGS) $(JAVA_STATIC_INCLUDES) -fPIC -c $< -o $@ $(COVERAGEFLAGS)
