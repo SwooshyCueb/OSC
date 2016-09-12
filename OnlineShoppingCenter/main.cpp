@@ -1,3 +1,5 @@
+#include "common.h"
+
 #include <glib.h>
 /* Relevant documentation:
  * https://developer.gnome.org/glib/stable/glib-Shell-related-Utilities.html
@@ -14,21 +16,25 @@ using namespace std;
 
 static gchar *username = NULL;
 static gchar *password = NULL;
+static gboolean initdb = FALSE;
 
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 static GOptionEntry entries[] =
 {
-  { "user", 'u', 0, G_OPTION_ARG_STRING, &username,
-    "Username for logging in (required)", "username" },
-  { "password", 'p', 0, G_OPTION_ARG_STRING, &password,
-    "Password for authentication (required)", "password" },
-  { NULL }
+    { "user", 'u', 0, G_OPTION_ARG_STRING, &username,
+      "Username for logging in (required if not --init)", "username" },
+    { "password", 'p', 0, G_OPTION_ARG_STRING, &password,
+      "Password for authentication (required if not --init)", "password" },
+    { "init", 0, 0, G_OPTION_ARG_NONE, &initdb,
+      "Populate the database with sample data", NULL },
+    { NULL }
 };
 #pragma GCC diagnostic warning "-Wmissing-field-initializers"
 
 int main(int argc, char *argv[]) {
     GError *error = NULL;
     GOptionContext *context;
+    StorageSystem dbengine;
 
     // argument parsing
     context = g_option_context_new("- Online Shopping Center command line "
@@ -46,6 +52,12 @@ int main(int argc, char *argv[]) {
     if (!g_option_context_parse(context, &argc, &argv, &error)) {
         g_print("option parsing failed: %s\n", error->message);
         exit(1);
+    }
+
+    if (initdb) {
+        g_print("Populating database with sample data\n");
+        dbengine.initDB();
+        exit(0);
     }
 
     if (username == NULL) {
