@@ -23,6 +23,7 @@ public:
     int checkCart(Product p);
     int getCount(Product p);
     int changeQuantity(Product p, int count);
+    int buyCart();
 
 private:
     std::vector<Product> cart;

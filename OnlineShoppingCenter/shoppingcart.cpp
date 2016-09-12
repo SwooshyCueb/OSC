@@ -74,3 +74,9 @@ void ShoppingCart::print() {
         }
     }
 }
+
+int ShoppingCart::buyCart() {
+    //make transaction
+    //update product quantity
+    //empty cart
+}
