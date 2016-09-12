@@ -26,6 +26,7 @@
 #include <sys/stat.h>
 #include <system_error>
 #include <vector>
+#include <sstream>
 
 #include "user.h"
 #include "transaction.h"

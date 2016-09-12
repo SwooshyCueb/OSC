@@ -48,9 +48,66 @@ User StorageSystem::getUser(string username) {
                            "Error opening user database: " + err.ToString());
     }
 
-    err = userdb->Get(DBReadOptions(), entry_handles[1], "cc_num", &dbval);
+    // Get transaction history
+    TransactionHistory orders;
+    err = userdb->Get(DBReadOptions(), entry_handles[1], "orders", &dbval);
+    vector<string> transaction_ids = split(dbval, '\n');
+    // Get transactions and add them to orders here
 
+    User user(username, orders);
 
+    err = userdb->Get(DBReadOptions(), entry_handles[1], "items_in_cart",
+                      &dbval);
+    // use dbval to create shopping cart
+
+    ShippingAddress addr;
+
+    err = userdb->Get(DBReadOptions(), entry_handles[1], "shipaddr_name",
+                      &dbval);
+    if (err.ok())
+        addr.changeShippingName(dbval);
+    err = userdb->Get(DBReadOptions(), entry_handles[1], "shipaddr_street",
+                      &dbval);
+    if (err.ok())
+        addr.changeStreet(dbval);
+    err = userdb->Get(DBReadOptions(), entry_handles[1], "shipaddr_city",
+                      &dbval);
+    if (err.ok())
+        addr.changeCity(dbval);
+    err = userdb->Get(DBReadOptions(), entry_handles[1], "shipaddr_state",
+                      &dbval);
+    if (err.ok())
+        addr.changeState(dbval);
+    err = userdb->Get(DBReadOptions(), entry_handles[1], "shipaddr_zip",
+                      &dbval);
+    if (err.ok())
+        addr.changeZip((unsigned int)stoul(dbval));
+    err = userdb->Get(DBReadOptions(), entry_handles[1], "shipaddr_country",
+                      &dbval);
+    if (err.ok())
+        addr.changeCountry(dbval);
+
+    user.changeShippingAddress(addr);
+
+    err = userdb->Get(DBReadOptions(), entry_handles[1], "cc_num",
+                      &dbval);
+    if (err.ok()) {
+        unsigned long cc_num = stoul(dbval);
+        err = userdb->Get(DBReadOptions(), entry_handles[1], "cc_exp",
+                          &dbval);
+        if (err.ok()) {
+            string cc_exp = dbval;
+            err = userdb->Get(DBReadOptions(), entry_handles[1], "cc_exp",
+                              &dbval);
+            if (err.ok()) {
+                unsigned int cc_cv2 = (unsigned int)stoul(dbval);
+                PaymentInfo cc(cc_num, cc_exp, cc_cv2);
+                user.changeCreditCard(cc);
+            }
+        }
+    }
+
+    return user;
 }
 
 int StorageSystem::initDB() {

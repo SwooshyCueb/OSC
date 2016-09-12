@@ -10,4 +10,21 @@
 #include <string>
 #include <cstdlib>
 
+#include <sstream>
+#include <vector>
+
+using namespace std;
+
+inline vector<string> split(const string &s, char delim) {
+    stringstream ss;
+    ss.str(s);
+    string elem;
+    vector<string> ret;
+    while (getline(ss, elem, delim)) {
+        if (!elem.empty())
+            ret.push_back(elem);
+    }
+    return ret;
+}
+
 #endif // COMMON_H
