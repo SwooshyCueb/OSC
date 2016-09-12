@@ -32,7 +32,8 @@ SOURCES += \
     shippingaddress.cpp \
     user.cpp \
     paymentinfo.cpp \
-    transactionhistory.cpp
+    transactionhistory.cpp \
+    transaction.cpp
 
 HEADERS += \
     product.h \
@@ -42,4 +43,5 @@ HEADERS += \
     user.h \
     paymentinfo.h \
     transactionhistory.h \
-    common.h
+    common.h \
+    transaction.h

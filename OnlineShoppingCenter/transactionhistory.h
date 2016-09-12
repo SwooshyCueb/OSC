@@ -2,14 +2,14 @@
 #define TRANSACTIONHISTORY_H
 
 #include <deque>
+#include "transaction.h"
 
 using namespace std;
 
-class TransactionHistory
-{
+class TransactionHistory {
 public:
     TransactionHistory();
-    deque<void*> transaction_list;
+    deque<Transaction> transaction_list;
     int transaction_list_id = -1;
 };
 
