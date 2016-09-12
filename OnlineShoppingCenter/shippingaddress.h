@@ -1,7 +1,7 @@
 #ifndef SHIPPINGADDRESS_H
 #define SHIPPINGADDRESS_H
 
-#include <string>
+#include "common.h"
 
 #define S_NAME_SET 1
 #define S_STREET_SET 2

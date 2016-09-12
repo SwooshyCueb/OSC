@@ -1,13 +1,13 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include "paymentinfo.h"
-#include "product.h"
-#include "shippingaddress.h"
-#include "shoppingcart.h"
-#include "storagesystem.h"
-//#include "transaction.h"
-#include "transactionhistory.h"
-#include "user.h"
+#include <glib.h>
+/* Relevant documentation:
+ * https://developer.gnome.org/glib/stable/glib-Shell-related-Utilities.html
+ * https://developer.gnome.org/glib/stable/glib-Commandline-option-parser.html
+ */
+
+#include <string>
+#include <cstdlib>
 
 #endif // COMMON_H

@@ -1,7 +1,5 @@
 #include "paymentinfo.h"
 
-#include <string>
-
 using namespace std;
 
 PaymentInfo::PaymentInfo() {

@@ -1,8 +1,4 @@
 #include "user.h"
-#include "shippingaddress.h"
-#include "paymentinfo.h"
-#include "transactionhistory.h"
-#include <iostream>
 
 using namespace std;
 

@@ -1,9 +1,13 @@
 #ifndef SHOPPINGCART_H
 #define SHOPPINGCART_H
 
+#include "common.h"
 #include "product.h"
+
 #include <vector>
 #include <map>
+#include <iostream>
+#include <algorithm>
 
 class ShoppingCart
 {

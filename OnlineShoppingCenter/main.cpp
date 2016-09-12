@@ -1,13 +1,7 @@
 #include "common.h"
-
-#include <glib.h>
-/* Relevant documentation:
- * https://developer.gnome.org/glib/stable/glib-Shell-related-Utilities.html
- * https://developer.gnome.org/glib/stable/glib-Commandline-option-parser.html
- */
+#include "storagesystem.h"
 
 #include <iostream>
-#include <cstdlib>
 #include <unistd.h>
 #include <errno.h>
 #include <sys/stat.h>

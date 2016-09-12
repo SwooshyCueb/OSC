@@ -1,9 +1,11 @@
 #ifndef USER_H
 #define USER_H
 
-#include "shippingaddress.h"
+#include "common.h"
 #include "transactionhistory.h"
 #include "paymentinfo.h"
+#include "shippingaddress.h"
+#include <iostream>
 
 using namespace std;
 

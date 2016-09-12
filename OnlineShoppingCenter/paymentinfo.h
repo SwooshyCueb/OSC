@@ -1,7 +1,7 @@
 #ifndef PAYMENTINFO_H
 #define PAYMENTINFO_H
 
-#include <string>
+#include "common.h"
 
 using namespace std;
 

@@ -1,7 +1,4 @@
 #include "shoppingcart.h"
-#include "product.h"
-#include <iostream>
-#include <algorithm>
 
 ShoppingCart::ShoppingCart()
 {

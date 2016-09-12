@@ -1,8 +1,5 @@
 #include "product.h"
 
-#include <string>
-#include <iostream>
-
 Product::Product()
 {
     std::cout << "product created.";

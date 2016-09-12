@@ -1,7 +1,8 @@
 #ifndef PRODUCT_H
 #define PRODUCT_H
 
-#include <string>
+#include "common.h"
+#include <iostream>
 
 class Product
 {

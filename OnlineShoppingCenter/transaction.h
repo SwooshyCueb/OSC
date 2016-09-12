@@ -1,8 +1,10 @@
 #ifndef TRANSACTION_H
 #define TRANSACTION_H
 
-#include <string>
+#include "common.h"
 #include "shoppingcart.h"
+#include "shippingaddress.h"
+#include "paymentinfo.h"
 
 class Transaction
 {

@@ -1,8 +1,9 @@
 #ifndef TRANSACTIONHISTORY_H
 #define TRANSACTIONHISTORY_H
 
-#include <deque>
+#include "common.h"
 #include "transaction.h"
+#include <deque>
 
 using namespace std;
 
