@@ -10,7 +10,7 @@ configure.commands = \
         --disable-gtk-doc-html
 
 glib.target = glib/libglib-2.0.la
-glib.commands = make -j 9
+glib.commands = make -j9
 glib.depends = configure
 
 glib_clean.commands = make clean || true
@@ -21,6 +21,7 @@ qmake_all.depends = glib
 clean.depends = glib_clean
 distclean.depends = glib_distclean
 
+CONFIG = staticlib
 TARGET =
 
 QMAKE_DISTCLEAN ''= Makefile
