@@ -164,9 +164,9 @@ int StorageSystem::initDB() {
                                 "7217a7bd-5be3-4ce3-8e51-afa4c640a1de\n"
                                 "0ca93973-a29e-4da9-bcad-c4a35b09b3c9\n");
 
-    batch.Put(entry_handles[1], "items_in_cart", "ISBN:9780345507754\n"
-                                                 "ASIN:B00WM9G3C6\n"
-                                                 "UPC:92636250744");
+    batch.Put(entry_handles[1], "items_in_cart", "ISBN:9780345507754:1\n"
+                                                 "ASIN:B00WM9G3C6:2\n"
+                                                 "UPC:92636250744:1");
     batch.Put(entry_handles[2], "shipaddr_name", "Test User, II");
     batch.Put(entry_handles[2], "shipaddr_street", "424-2529 Wark St.");
     batch.Put(entry_handles[2], "shipaddr_city", "Victoria");
