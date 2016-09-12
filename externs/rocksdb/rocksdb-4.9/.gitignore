@@ -64,3 +64,10 @@ java/javadoc
 scan_build_report/
 t
 LOG
+
+*.tar.gz
+snappy-*/
+zlib-*/
+lz4-*/
+bzip2-*/
+
