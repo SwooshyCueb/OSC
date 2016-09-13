@@ -1,76 +1,99 @@
 #include "shoppingcart.h"
 
+using namespace std;
+
 ShoppingCart::ShoppingCart()
 {
 
 }
-ShoppingCart::ShoppingCart(Product p){
+/*
+ ShoppingCart::ShoppingCart(Product p){
     cart.push_back(p);
     product_count[p.getUPC()] = 1;
 
 }
+*/
+
 int ShoppingCart::addProduct(Product p) {
 
-
-    if (ShoppingCart::checkCart(p) <  1) {
-        cart.push_back(p);
-        product_count[p.getUPC()] = 1;
-    }
-    else {
-        product_count[p.getUPC()] = product_count[p.getUPC()] + 1;
-    }
+    if (!ShoppingCart::checkCart(p))
+        cart[p.getUPC()] = make_pair(p, 1);
 
     return 1;
 }
 
-int ShoppingCart::getCount(Product p) {
-    return product_count.count(p.getUPC());
-}
-
-int ShoppingCart::checkCart(Product p) {
-    if (product_count.count(p.getUPC()) > 0) {
-        return 1;
-    }
-    else {
-        return -1;
-    }
-}
-
-int ShoppingCart::emptyCart() {
-    cart.clear();
-    product_count.clear();
-    std::cout << "You have emptied your shopping cart." << std::endl;
+int ShoppingCart::addProduct(Product p, unsigned int qty) {
+    cart[p.getUPC()] = make_pair(p, qty);
     return 1;
 }
 
 int ShoppingCart::deleteProduct(Product p) {
-    if (product_count.count(p.getUPC()) < 1) {
-        return -1;
-    }
-    else if (product_count.count(p.getUPC()) >= 1) {
-        product_count.erase(p.getUPC());
+    cart.erase(p.getUPC());
+    return 1;
+}
 
+int ShoppingCart::deleteProduct(SKU UPC) {
+    cart.erase(UPC);
+    return 1;
+}
 
-        for (uint i = 0; i < cart.size(); i++) {
-            if (p.getUPC() == cart[i].getUPC()) {
-                cart.erase(cart.begin() + i);
-                return 1;
-            }
-        }
+int ShoppingCart::changeQuantity(Product p, unsigned int qty) {
+    return addProduct(p, qty);
+}
 
-        return 1;
+unsigned int ShoppingCart::getCount(Product p) {
+    try {
+        return cart.at(p.getUPC()).second;
+    } catch (const out_of_range &e) {
+        return 0;
     }
 }
 
+unsigned int ShoppingCart::getCount(SKU UPC) {
+    try {
+        return cart.at(UPC).second;
+    } catch (const out_of_range &e) {
+        return 0;
+    }
+}
+
+bool ShoppingCart::checkCart(Product p) {
+    try {
+        if (cart.at(p.getUPC()).second > 0) {
+            return true;
+        }
+    } catch (const out_of_range &e) {
+        return false;
+    }
+    return false;
+}
+
+bool ShoppingCart::checkCart(SKU UPC) {
+    try {
+        if (cart.at(UPC).second > 0) {
+            return true;
+        }
+    } catch (const out_of_range &e) {
+        return false;
+    }
+    return false;
+}
+
+int ShoppingCart::emptyCart() {
+    cart.clear();
+    std::cout << "You have emptied your shopping cart." << endl;
+    return 1;
+}
+
 void ShoppingCart::print() {
-    if (cart.size() == 0) {
-        std::cout << "Your shopping cart is empty." << std::endl;
+    if (cart.empty()) {
+        cout << "Your shopping cart is empty." << endl;
     }
     else {
-        std::cout << "Product\t UPC\t Catagory\t Price\t Quantity" << std::endl;
-        for (uint i = 0; i < cart.size(); i++) {
-            cart[i].print();
-            std::cout << "\t " << product_count[cart[i].getUPC()] << std::endl;
+        cout << "Product\t UPC\t Catagory\t Price\t Quantity" << endl;
+        for (auto p : cart) {
+            p.second.first.print();
+            cout << "\t " << p.second.second << endl;
         }
     }
 }

@@ -19,5 +19,6 @@ void Transaction::chargeCreditCard() {
     time_t t = time(NULL);
     transaction_date = *(gmtime(&t));
     is_finalized = true;
+    // update product quantity in-stock
 }
 

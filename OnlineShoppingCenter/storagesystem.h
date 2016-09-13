@@ -45,12 +45,11 @@ public:
 
     User getUser(string username);
     int storeUser(User user);
-
     int storeProduct(Product product);
+    int storeTransaction(Transaction transaction);
 
     /*
     Transaction getTransaction(unsigned __int128);
-    int storeTransaction(Transaction transaction);
     */
 
     int initDB();
