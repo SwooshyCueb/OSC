@@ -4,10 +4,8 @@
 #include "common.h"
 #include "product.h"
 
-#include <vector>
 #include <map>
 #include <iostream>
-#include <algorithm>
 
 using namespace std;
 
@@ -15,13 +13,11 @@ class ShoppingCart
 {
 public:
     ShoppingCart();
-    //ShoppingCart(Product p);
-
     int addProduct(Product p);
     int addProduct(Product p, unsigned int qty);
     int deleteProduct(Product p);
-    int addProduct(SKU UPC); // NYI
-    int addProduct(SKU UPC, unsigned int qty); // NYI
+    int addProduct(SKU UPC);
+    int addProduct(SKU UPC, unsigned int qty);
     int deleteProduct(SKU UPC);
     int emptyCart();
     void print();
@@ -30,8 +26,8 @@ public:
     unsigned int getCount(Product p);
     unsigned int getCount(SKU UPC);
     int changeQuantity(Product p, unsigned int qty);
-    int changeQuantity(SKU UPC, unsigned int qty); // NYI
-    int buyCart(); // NYI
+    int changeQuantity(SKU UPC, unsigned int qty);
+    int buyCart();
 
     map<SKU, pair<Product, unsigned int>> cart;
 

@@ -1,4 +1,6 @@
 #include "shoppingcart.h"
+#include "transaction.h"
+#include "storagesystem.h"
 
 using namespace std;
 
@@ -6,13 +8,6 @@ ShoppingCart::ShoppingCart()
 {
 
 }
-/*
- ShoppingCart::ShoppingCart(Product p){
-    cart.push_back(p);
-    product_count[p.getUPC()] = 1;
-
-}
-*/
 
 int ShoppingCart::addProduct(Product p) {
 
@@ -27,6 +22,18 @@ int ShoppingCart::addProduct(Product p, unsigned int qty) {
     return 1;
 }
 
+int ShoppingCart::addProduct(SKU UPC, unsigned int qty) {
+    StorageSystem ss;
+    Product p = ss.getProduct(UPC);
+    return addProduct(p, qty);
+}
+
+int ShoppingCart::addProduct(SKU UPC) {
+    StorageSystem ss;
+    Product p = ss.getProduct(UPC);
+    return addProduct(p, 1);
+}
+
 int ShoppingCart::deleteProduct(Product p) {
     cart.erase(p.getUPC());
     return 1;
@@ -38,6 +45,12 @@ int ShoppingCart::deleteProduct(SKU UPC) {
 }
 
 int ShoppingCart::changeQuantity(Product p, unsigned int qty) {
+    return addProduct(p, qty);
+}
+
+int ShoppingCart::changeQuantity(SKU UPC, unsigned int qty) {
+    StorageSystem ss;
+    Product p = ss.getProduct(UPC);
     return addProduct(p, qty);
 }
 
@@ -100,6 +113,21 @@ void ShoppingCart::print() {
 
 int ShoppingCart::buyCart() {
     //make transaction
+
+    Transaction t = Transaction(*this);
+
     //update product quantity
+    for (auto p : cart) {
+        if (p.second.first.getQuantity() > p.second.second) {
+            p.second.first.setQuantity(p.second.first.getQuantity() - p.second.second);
+        }
+        else {
+            p.second.first.setQuantity(0); //add some error checking in add product
+        }
+    }
+
     //empty cart
+    cart.clear();
+
+    return 1;
 }
