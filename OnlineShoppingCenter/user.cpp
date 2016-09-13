@@ -6,6 +6,9 @@ using namespace std;
  * added later.
  */
 
+/* Dummy constructor */
+User::User() {}
+
 /* If this is an existing user, we will already have a TransactionHistory
  * object for them.
  *
@@ -18,6 +21,7 @@ User::User(string new_user_name, TransactionHistory new_transaction_history)
     user_name = new_user_name;
     transaction_history_id = new_transaction_history.transaction_list_id;
     transaction_history = new_transaction_history;
+    is_set = true;
 }
 
 int User::changeCreditCard(PaymentInfo new_cc) {

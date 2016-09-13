@@ -30,9 +30,11 @@ inline vector<string> split(const string &s, char delim) {
 }
 
 class StorageSystem;
+class User;
 
 namespace globals {
     extern StorageSystem local_storage;
+    extern User logged_in;
 }
 
 #endif // COMMON_H
