@@ -494,7 +494,7 @@ int StorageSystem::initDB() {
     user_batch.Put(entry_handles[1], "shipaddr_state", "MS");
     user_batch.Put(entry_handles[1], "shipaddr_zip", "39759");
     user_batch.Put(entry_handles[1], "shipaddr_country", "USA");
-    user_batch.Put(entry_handles[1], "cc_num", "5174928299721390");
+    user_batch.Put(entry_handles[1], "cc_num", "8299721390");
     user_batch.Put(entry_handles[1], "cc_exp", "06/20");
     user_batch.Put(entry_handles[1], "cc_cv2", "040");
     user_batch.Put(entry_handles[1], "orders",
@@ -547,6 +547,22 @@ int StorageSystem::initDB() {
     // PNY Attaché USB 2.0 Flash Drive 128GB
     userdb->CreateDBEntry(rocks_entry_cfg, "751492561585", &testproduct);
     delete testproduct;
+    // /////////////////HOLDER
+    // Staples
+    userdb->CreateDBEntry(rocks_entry_cfg, "653562346025", &testproduct);
+    delete testproduct;
+    // Corn
+    userdb->CreateDBEntry(rocks_entry_cfg, "978091685754", &testproduct);
+    delete testproduct;
+    // Bread
+    userdb->CreateDBEntry(rocks_entry_cfg, "630037948637", &testproduct);
+    delete testproduct;
+    // paper
+    userdb->CreateDBEntry(rocks_entry_cfg, "945682378878", &testproduct);
+    delete testproduct;
+    // Pens
+    userdb->CreateDBEntry(rocks_entry_cfg, "452368735260", &testproduct);
+    delete testproduct;
 
     delete productdb;
 
@@ -561,6 +577,17 @@ int StorageSystem::initDB() {
     entry_descriptors.push_back(DBEntryDescriptor("999992778878",
                                                   rocks_entry_cfg));
     entry_descriptors.push_back(DBEntryDescriptor("751492561585",
+                                                  rocks_entry_cfg));
+    //Holder
+    entry_descriptors.push_back(DBEntryDescriptor("653562346025",
+                                                  rocks_entry_cfg));
+    entry_descriptors.push_back(DBEntryDescriptor("978091685754",
+                                                  rocks_entry_cfg));
+    entry_descriptors.push_back(DBEntryDescriptor("630037948637",
+                                                  rocks_entry_cfg));
+    entry_descriptors.push_back(DBEntryDescriptor("945682378878",
+                                                  rocks_entry_cfg));
+    entry_descriptors.push_back(DBEntryDescriptor("452368735260",
                                                   rocks_entry_cfg));
 
     DB::Open(rocks_db_cfg, "./OSCdb/products", entry_descriptors,
@@ -595,6 +622,33 @@ int StorageSystem::initDB() {
     product_batch.Put(entry_handles[5], "category", "Small Electronics");
     product_batch.Put(entry_handles[5], "price", "31.99");
     product_batch.Put(entry_handles[5], "on_hand", "21");
+
+    //HOLDER
+    DBWriteBatch product_batch;
+    product_batch.Put(entry_handles[6], "name", "Staples");
+    product_batch.Put(entry_handles[6], "category", "Household Items");
+    product_batch.Put(entry_handles[6], "price", "2.00");
+    product_batch.Put(entry_handles[6], "on_hand", "89");
+
+    product_batch.Put(entry_handles[7], "name", "Corn");
+    product_batch.Put(entry_handles[7], "category", "Household Items");
+    product_batch.Put(entry_handles[7], "price", "6.99");
+    product_batch.Put(entry_handles[7], "on_hand", "7");
+
+    product_batch.Put(entry_handles[8], "name", "Bread");
+    product_batch.Put(entry_handles[8], "category", "Household Items");
+    product_batch.Put(entry_handles[8], "price", "1.19");
+    product_batch.Put(entry_handles[8], "on_hand", "12");
+
+    product_batch.Put(entry_handles[9], "name", "Paper");
+    product_batch.Put(entry_handles[9], "category", "Household Items");
+    product_batch.Put(entry_handles[9], "price", "0.99");
+    product_batch.Put(entry_handles[9], "on_hand", "23");
+
+    product_batch.Put(entry_handles[10], "name", "Pens");
+    product_batch.Put(entry_handles[10], "category", "Household Items");
+    product_batch.Put(entry_handles[10], "price", "2.99");
+    product_batch.Put(entry_handles[10], "on_hand", "21");
 
     productdb->Write(DBWriteOptions(), &product_batch);
 
@@ -649,7 +703,7 @@ int StorageSystem::initDB() {
     order_batch.Put(entry_handles[1], "shipaddr_state", "MS");
     order_batch.Put(entry_handles[1], "shipaddr_zip", "39759");
     order_batch.Put(entry_handles[1], "shipaddr_country", "USA");
-    order_batch.Put(entry_handles[1], "cc_num", "5174928299721390");
+    order_batch.Put(entry_handles[1], "cc_num", "8299721390");
     order_batch.Put(entry_handles[1], "cc_exp", "06/20");
     order_batch.Put(entry_handles[1], "cc_cv2", "040");
 
@@ -664,7 +718,7 @@ int StorageSystem::initDB() {
     order_batch.Put(entry_handles[2], "shipaddr_state", "MS");
     order_batch.Put(entry_handles[2], "shipaddr_zip", "39759");
     order_batch.Put(entry_handles[2], "shipaddr_country", "USA");
-    order_batch.Put(entry_handles[2], "cc_num", "4485063892992292");
+    order_batch.Put(entry_handles[2], "cc_num", "5034967580");
     order_batch.Put(entry_handles[2], "cc_exp", "12/18");
     order_batch.Put(entry_handles[2], "cc_cv2", "960");
 
@@ -680,7 +734,7 @@ int StorageSystem::initDB() {
     order_batch.Put(entry_handles[3], "shipaddr_state", "MS");
     order_batch.Put(entry_handles[3], "shipaddr_zip", "39759");
     order_batch.Put(entry_handles[3], "shipaddr_country", "USA");
-    order_batch.Put(entry_handles[3], "cc_num", "5174928299721390");
+    order_batch.Put(entry_handles[3], "cc_num", "8299721390");
     order_batch.Put(entry_handles[3], "cc_exp", "06/20");
     order_batch.Put(entry_handles[3], "cc_cv2", "040");
 
@@ -694,7 +748,7 @@ int StorageSystem::initDB() {
     order_batch.Put(entry_handles[4], "shipaddr_state", "MS");
     order_batch.Put(entry_handles[4], "shipaddr_zip", "39759");
     order_batch.Put(entry_handles[4], "shipaddr_country", "USA");
-    order_batch.Put(entry_handles[4], "cc_num", "5174928299721390");
+    order_batch.Put(entry_handles[4], "cc_num", "8299721390");
     order_batch.Put(entry_handles[4], "cc_exp", "06/20");
     order_batch.Put(entry_handles[4], "cc_cv2", "040");
     orderdb->Write(DBWriteOptions(), &order_batch);
