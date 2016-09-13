@@ -1,4 +1,5 @@
 #include "product.h"
+#include "storagesystem.h"
 
 using namespace std;
 
@@ -77,7 +78,9 @@ string Product::getCategory() {
 int Product::setQuantity(unsigned int new_quantity) {
 
     quantity = new_quantity;
-    //update storagesystem
+
+    StorageSystem ss;
+    ss.storeProduct(*this);
 
     parts_set |= P_QUANTITY_SET;
     if (parts_set == P_ALL_SET) {
