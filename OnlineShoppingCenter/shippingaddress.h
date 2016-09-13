@@ -45,7 +45,6 @@ public:
     string country;
     bool is_set = false;
 
-private:
     unsigned int parts_set = 0;
 };
 

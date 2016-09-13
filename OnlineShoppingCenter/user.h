@@ -18,13 +18,12 @@ public:
     int changeCreditCard(PaymentInfo new_cc);
     int changeShippingAddress(ShippingAddress new_shipping_address);
 
-
-private:
     string user_name;
     ShippingAddress shipping_address;
     PaymentInfo payment_info;
     int transaction_history_id;
     TransactionHistory transaction_history;
+    ShoppingCart shopping_cart;
 
 };
 

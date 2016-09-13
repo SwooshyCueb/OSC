@@ -25,11 +25,108 @@ StorageSystem::StorageSystem() {
     rocks_cfg = rocksOptions(rocks_db_cfg, rocks_entry_cfg);
 }
 
-User StorageSystem::getUser(string username) {
-    //if (!g_file_test(("./OSCdb/users/" + username), G_FILE_TEST_IS_REGULAR)) {
-    //    throw runtime_error("User does not exist");
-    //}
+int StorageSystem::storeUser(User user) {
+    rocksErr err;
+    vector<DBEntryDescriptor> entry_descriptors;
+    vector<DBEntryHandle*> entry_handles;
+    DB *userdb;
 
+    vector<string> username_sv;
+    err = DBgetEntries(rocks_db_cfg, "./OSCdb/users", &username_sv);
+    list<string> username_sl(username_sv.begin(), username_sv.end());
+
+    username_sl.remove(kDefaultDBEntry);
+    username_sl.remove(user.user_name);
+    entry_descriptors.push_back(DBEntryDescriptor(kDefaultDBEntry,
+                                                  rocks_entry_cfg));
+    entry_descriptors.push_back(DBEntryDescriptor(user.user_name,
+                                                  rocks_entry_cfg));
+
+    for (auto username_s : username_sl) {
+        entry_descriptors.push_back(DBEntryDescriptor(username_s,
+                                                      rocks_entry_cfg));
+    }
+
+    DB::Open(rocks_db_cfg, "./OSCdb/users", entry_descriptors,
+             &entry_handles, &userdb);
+
+    DBWriteBatch user_batch;
+
+    if (user.shipping_address.parts_set && S_NAME_SET) {
+        user_batch.Put(entry_handles[1], "shipaddr_name",
+                                         user.shipping_address.shipping_name);
+    }
+    if (user.shipping_address.parts_set && S_STREET_SET) {
+        user_batch.Put(entry_handles[1], "shipaddr_street",
+                                         user.shipping_address.street);
+    }
+    if (user.shipping_address.parts_set && S_CITY_SET) {
+        user_batch.Put(entry_handles[1], "shipaddr_city",
+                                         user.shipping_address.city);
+    }
+    if (user.shipping_address.parts_set && S_STATE_SET) {
+        user_batch.Put(entry_handles[1], "shipaddr_state",
+                                         user.shipping_address.state);
+    }
+    if (user.shipping_address.parts_set && S_ZIP_SET) {
+        user_batch.Put(entry_handles[1], "shipaddr_zip",
+                                         to_string(user.shipping_address.zip));
+    }
+    if (user.shipping_address.parts_set && S_COUNTRY_SET) {
+        user_batch.Put(entry_handles[1], "shipaddr_country",
+                                         user.shipping_address.country);
+    }
+
+    if (user.payment_info.is_set == true) {
+        user_batch.Put(entry_handles[1], "cc_num",
+                                         to_string(user.payment_info.cc_num));
+        user_batch.Put(entry_handles[1], "cc_exp",
+                                         user.payment_info.cc_exp);
+        user_batch.Put(entry_handles[1], "cc_cv2",
+                                         to_string(user.payment_info.cc_cv2));
+    }
+
+    string orders_s = "";
+    char tid_cs[37];
+    string tid_s;
+    for (auto order : user.transaction_history.transaction_list) {
+        if (order.is_finalized == false)
+            continue;
+
+        if (orders_s.empty()) {
+            orders_s.append("\n");
+        }
+
+        uuid_unparse_lower(order.transaction_id, (char *)tid_cs);
+        tid_s.assign((char *)tid_cs);
+        orders_s.append(tid_s);
+    }
+    user_batch.Put(entry_handles[1], "orders", orders_s);
+
+    string cart_s = "";
+    for (auto item : user.shopping_cart.cart) {
+        if (!cart_s.empty()) {
+            cart_s.append("\n");
+        }
+        cart_s.append(to_string(item.first));
+        cart_s.append(":");
+        cart_s.append(to_string(item.second.second));
+    }
+    user_batch.Put(entry_handles[1], "items_in_cart", cart_s);
+
+    userdb->Write(DBWriteOptions(), &user_batch);
+
+    for (auto entry : entry_handles) {
+        delete entry;
+    }
+    delete userdb;
+
+    entry_descriptors.clear();
+
+    return 1;
+}
+
+User StorageSystem::getUser(string username) {
     rocksErr err;
     DB *userdb;
     vector<DBEntryDescriptor> entry_descriptors;
@@ -50,15 +147,15 @@ User StorageSystem::getUser(string username) {
 
     // Get transaction history
     TransactionHistory orders;
+    uuid_t tid;
     err = userdb->Get(DBReadOptions(), entry_handles[1], "orders", &dbval);
     vector<string> transaction_ids = split(dbval, '\n');
-    // Get transactions and add them to orders here
+    for (auto tid_s : transaction_ids) {
+        uuid_parse(tid_s.c_str(), tid);
+        orders.addTransaction(this->getTransaction(tid));
+    }
 
     User user(username, orders);
-
-    err = userdb->Get(DBReadOptions(), entry_handles[1], "items_in_cart",
-                      &dbval);
-    // use dbval to create shopping cart
 
     ShippingAddress addr;
 
@@ -105,6 +202,14 @@ User StorageSystem::getUser(string username) {
                 user.changeCreditCard(cc);
             }
         }
+
+    }
+
+    userdb->Get(DBReadOptions(), entry_handles[1], "items_in_cart", &dbval);
+    for (auto item_ps : split(dbval, '\n')) {
+        vector<string> item_pv = split(item_ps, ':');
+        user.shopping_cart.addProduct(this->getProduct(stoul(item_pv[0])),
+                        (unsigned int)stoul(item_pv[1]));
     }
 
     return user;

@@ -13,8 +13,6 @@ class TransactionHistory {
         char addTransaction(Transaction trans);
         int transaction_list_id; //Dont think this is needed since ID is stored in the Transaction object
 
-    private:
-
         std::vector<Transaction> transaction_list;
 };
 
