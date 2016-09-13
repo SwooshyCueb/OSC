@@ -84,11 +84,25 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    g_print("Authenticating...\n");
     try {
         globals::logged_in = globals::local_storage.getUser(username_cs);
     } catch (const system_error &e) {
         g_printerr("Authentication failed...\n");
         exit(1);
+    }
+
+    g_print("Logged in as %s.\n", globals::logged_in.user_name.c_str());
+
+    while (true) {
+        g_print("\nCurrent inventory:\n");
+        // TODO: Print inventory here.
+        g_print("\nAvailable commands:\n");
+        g_print("addtocart <UPC> [qty]   Add product to cart\n");
+        g_print("cart                    Manage shopping cart\n");
+        g_print("profile                 Manage personal information\n");
+        g_print("exit                    Log out and close OSC\n");
+        getline(cin, cmd);
     }
 
     return 0;
