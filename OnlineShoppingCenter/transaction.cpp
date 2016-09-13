@@ -2,23 +2,32 @@
 #include <string>
 
 using namespace std;
-Transaction::Transaction()
-{
-
-}
 
 Transaction::Transaction(ShoppingCart cart, PaymentInfo pay) {
     this->shopping_cart = cart;
     this->payment_info = pay;
+    uuid_generate(transaction_id)
 }
 
-char Transaction::chargeCreditCard(float amt) {
-    this->transaction_amount = amt;
+Transaction::Transaction(ShoppingCart cart, uuid_t id) {
+    this->shopping_cart = cart;
+    uuid_copy(transaction_id, id);
+    // Calculate total, store in transaction_amount
+}
+Transaction::Transaction(ShoppingCart cart) {
+    shopping_cart = cart;
+    uuid_generate(transaction_id);
+    // Calculate total, store in transaction_amount
+}
+
+char Transaction::chargeCreditCard() {
+    time_t t = time(NULL);
+    transaction_date = *(gmtime(&t));
+    is_finalized = true;
     return 1;
 }
 
-
-char Transaction::setTransactionDate(string date) {
+char Transaction::setTransactionDate(tm date) {
     this->transaction_date = date;
     return 1;
 }
