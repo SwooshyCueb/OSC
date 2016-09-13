@@ -8,6 +8,10 @@
 
 using namespace std;
 
+namespace globals {
+    StorageSystem local_storage;
+}
+
 static gchar *username = NULL;
 static gchar *password = NULL;
 static gboolean initdb = FALSE;
@@ -28,7 +32,6 @@ static GOptionEntry entries[] =
 int main(int argc, char *argv[]) {
     GError *error = NULL;
     GOptionContext *context;
-    StorageSystem dbengine;
 
     // argument parsing
     context = g_option_context_new("- Online Shopping Center command line "
@@ -51,7 +54,7 @@ int main(int argc, char *argv[]) {
     if (initdb) {
         // TOTO: Warn about data loss and confirm
         g_print("Populating database with sample data\n");
-        dbengine.initDB();
+        globals::local_storage.initDB();
         exit(0);
     }
 

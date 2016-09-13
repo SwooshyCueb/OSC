@@ -29,4 +29,10 @@ inline vector<string> split(const string &s, char delim) {
     return ret;
 }
 
+class StorageSystem;
+
+namespace globals {
+    extern StorageSystem local_storage;
+}
+
 #endif // COMMON_H

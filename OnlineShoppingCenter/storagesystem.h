@@ -33,13 +33,13 @@
 #include <cstdio>
 #include <uuid/uuid.h>
 
-#include "user.h"
+#include "paymentinfo.h"
+#include "shippingaddress.h"
+#include "shoppingcart.h"
+#include "product.h"
 #include "transaction.h"
 #include "transactionhistory.h"
-#include "shoppingcart.h"
-#include "shippingaddress.h"
-#include "paymentinfo.h"
-#include "product.h"
+#include "user.h"
 
 using namespace std;
 

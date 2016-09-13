@@ -23,14 +23,12 @@ int ShoppingCart::addProduct(Product p, unsigned int qty) {
 }
 
 int ShoppingCart::addProduct(SKU UPC, unsigned int qty) {
-    StorageSystem ss;
-    Product p = ss.getProduct(UPC);
+    Product p = globals::local_storage.getProduct(UPC);
     return addProduct(p, qty);
 }
 
 int ShoppingCart::addProduct(SKU UPC) {
-    StorageSystem ss;
-    Product p = ss.getProduct(UPC);
+    Product p = globals::local_storage.getProduct(UPC);
     return addProduct(p, 1);
 }
 
@@ -49,8 +47,7 @@ int ShoppingCart::changeQuantity(Product p, unsigned int qty) {
 }
 
 int ShoppingCart::changeQuantity(SKU UPC, unsigned int qty) {
-    StorageSystem ss;
-    Product p = ss.getProduct(UPC);
+    Product p = globals::local_storage.getProduct(UPC);
     return addProduct(p, qty);
 }
 
