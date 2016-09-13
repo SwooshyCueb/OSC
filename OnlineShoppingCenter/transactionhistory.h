@@ -6,8 +6,6 @@
 #include "transaction.h"
 
 
-using namespace std;
-
 class TransactionHistory {
     public:
         TransactionHistory();
@@ -17,7 +15,7 @@ class TransactionHistory {
 
     private:
 
-        vector<Transaction> transaction_list;
+        std::vector<Transaction> transaction_list;
 };
 
 #endif // TRANSACTIONHISTORY_H
