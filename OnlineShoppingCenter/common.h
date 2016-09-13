@@ -15,7 +15,7 @@
 
 using namespace std;
 
-typedef unsigned int SKU;
+typedef unsigned long SKU;
 
 inline vector<string> split(const string &s, char delim) {
     stringstream ss;

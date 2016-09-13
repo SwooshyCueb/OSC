@@ -20,6 +20,7 @@
 #define kDefaultDBEntry rocksdb::kDefaultColumnFamilyName
 #define CreateDBEntry CreateColumnFamily
 #define DBWriteBatch rocksdb::WriteBatch
+#define DBgetEntries DB::ListColumnFamilies
 
 #include <iostream>
 #include <unistd.h>
@@ -28,6 +29,8 @@
 #include <system_error>
 #include <vector>
 #include <sstream>
+#include <list>
+#include <cstdio>
 
 #include "user.h"
 #include "transaction.h"
@@ -46,6 +49,7 @@ public:
 
     User getUser(string username);
     int storeUser(User user);
+    Product getProduct(SKU UPC);
     int storeProduct(Product product);
     int storeTransaction(Transaction transaction);
 

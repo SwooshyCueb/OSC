@@ -110,6 +110,88 @@ User StorageSystem::getUser(string username) {
     return user;
 }
 
+int StorageSystem::storeProduct(Product product) {
+    rocksErr err;
+    vector<DBEntryDescriptor> entry_descriptors;
+    vector<DBEntryHandle*> entry_handles;
+    DB *productdb;
+
+    if (product.is_set == false)
+        return 0;
+
+    vector<string> upc_sv;
+    err = DBgetEntries(rocks_db_cfg, "./OSCdb/products", &upc_sv);
+    list<string> upc_sl(upc_sv.begin(), upc_sv.end());
+
+    upc_sl.remove(kDefaultDBEntry);
+    upc_sl.remove(to_string(product.getUPC()));
+    entry_descriptors.push_back(DBEntryDescriptor(kDefaultDBEntry,
+                                                  rocks_entry_cfg));
+    entry_descriptors.push_back(DBEntryDescriptor(to_string(product.getUPC()),
+                                                  rocks_entry_cfg));
+
+    for (auto upc_s : upc_sl) {
+        entry_descriptors.push_back(DBEntryDescriptor(upc_s, rocks_entry_cfg));
+    }
+
+    DB::Open(rocks_db_cfg, "./OSCdb/products", entry_descriptors,
+             &entry_handles, &productdb);
+
+    DBWriteBatch product_batch;
+    product_batch.Put(entry_handles[1], "name", product.getName());
+    product_batch.Put(entry_handles[1], "category", product.getCategory());
+    product_batch.Put(entry_handles[1], "price", to_string(product.getPrice()));
+    product_batch.Put(entry_handles[1], "on_hand",
+                                        to_string(product.getQuantity()));
+    productdb->Write(DBWriteOptions(), &product_batch);
+
+    for (auto entry : entry_handles) {
+        delete entry;
+    }
+    delete productdb;
+
+    entry_descriptors.clear();
+
+    return 1;
+
+}
+
+Product StorageSystem::getProduct(SKU UPC) {
+    rocksErr err;
+    vector<DBEntryDescriptor> entry_descriptors;
+    vector<DBEntryHandle*> entry_handles;
+    DB *productdb;
+
+    entry_descriptors.push_back(DBEntryDescriptor(kDefaultDBEntry,
+                                                  rocks_entry_cfg));
+    entry_descriptors.push_back(DBEntryDescriptor(to_string(UPC),
+                                                  rocks_entry_cfg));
+
+    DB::OpenForReadOnly(rocks_db_cfg, "./OSCdb/products", entry_descriptors,
+                        &entry_handles, &productdb);
+
+    Product ret;
+    ret.setUPC(UPC);
+
+    string dbval;
+
+    productdb->Get(DBReadOptions(), entry_handles[1], "name", &dbval);
+    ret.setName(dbval);
+    productdb->Get(DBReadOptions(), entry_handles[1], "category", &dbval);
+    ret.setCategory(dbval);
+    productdb->Get(DBReadOptions(), entry_handles[1], "price", &dbval);
+    ret.setPrice(stof(dbval));
+    productdb->Get(DBReadOptions(), entry_handles[1], "on_hand", &dbval);
+    ret.setQuantity((unsigned int)stoul(dbval));
+
+    for (auto entry : entry_handles) {
+        delete entry;
+    }
+    delete productdb;
+
+    return ret;
+}
+
 int StorageSystem::initDB() {
     rocksErr err;
     vector<DBEntryDescriptor> entry_descriptors;
