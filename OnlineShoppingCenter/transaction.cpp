@@ -7,19 +7,38 @@ Transaction::Transaction()
 
 }
 
-Transaction::Transaction(ShoppingCart cart) {
+Transaction::Transaction(ShoppingCart cart, PaymentInfo pay) {
     this->shopping_cart = cart;
+    this->payment_info = pay;
 }
 
-void Transaction::chargeCreditCart(float amt) {
+char Transaction::chargeCreditCard(float amt) {
     this->transaction_amount = amt;
+    return 1;
 }
 
-void Transaction::changeProductQuantity(int a, int b) {
-    ///IDK what this is tbh - if I had to guess, this is more of a shopping cart thing to deal with
+
+char Transaction::setTransactionDate(string date) {
+    this->transaction_date = date;
+    return 1;
 }
 
-void Transaction::addTransactionToHistory(string s, int a) {
-    this->transaction_date = s;
-    this->transaction_id = a;
+char Transaction::setShoppingCart(ShoppingCart cart) {
+    this->shopping_cart = cart;
+    return 1;
+}
+
+char Transaction::setTransactionAmt(float amt) {
+    this->transaction_amount = amt;
+    return 1;
+}
+
+char Transaction::setPaymentInfo(PaymentInfo info) {
+    this->payment_info = info;
+    return 1;
+}
+
+char Transaction::setShippingAddress(ShippingAddress addr) {
+    this->shipping_address = addr;
+    return 1;
 }

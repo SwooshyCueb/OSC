@@ -6,21 +6,25 @@
 #include "shippingaddress.h"
 #include "paymentinfo.h"
 
-class Transaction
-{
-public:
-    Transaction();
-    Transaction(ShoppingCart cart);
-    void chargeCreditCart(float amt);
-    void changeProductQuantity(int a, int b);
-    void addTransactionToHistory(std::string s, int a);
+using namespace std;
+class Transaction {
+    public:
+        Transaction();
+        Transaction(ShoppingCart cart, PaymentInfo pay);
+        char chargeCreditCard(float amt);
+        char setTransactionDate(string date);
+        char setShoppingCart(ShoppingCart cart);
+        char setTransactionAmt(float amt);
+        char setPaymentInfo(PaymentInfo info);
+        char setShippingAddress(ShippingAddress addr);
 
-
-private:
-    int transaction_id;
-    std::string transaction_date;
-    ShoppingCart shopping_cart;
-    float transaction_amount;
+    private:
+        int transaction_id;
+        string transaction_date;
+        ShoppingCart shopping_cart;
+        float transaction_amount;
+        PaymentInfo payment_info;
+        ShippingAddress shipping_address;
 
 };
 
