@@ -75,8 +75,6 @@ string Product::getCategory() {
 }
 
 int Product::setQuantity(unsigned int new_quantity) {
-    if (new_quantity < 0)
-        return -1;
 
     quantity = new_quantity;
     //update storagesystem
