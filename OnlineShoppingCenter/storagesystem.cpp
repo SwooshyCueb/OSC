@@ -192,12 +192,165 @@ Product StorageSystem::getProduct(SKU UPC) {
     return ret;
 }
 
+int StorageSystem::storeTransaction(Transaction transaction) {
+    rocksErr err;
+    vector<DBEntryDescriptor> entry_descriptors;
+    vector<DBEntryHandle*> entry_handles;
+    DB *orderdb;
+    char id_cs[37];
+    uuid_unparse_lower(transaction.transaction_id, (char *)id_cs);
+    string id_s((char *)id_cs);
+
+    // Do not store orders that were not actually placed
+    if (transaction.is_finalized == false)
+        return 0;
+
+    vector<string> tid_sv;
+    err = DBgetEntries(rocks_db_cfg, "./OSCdb/orders", &tid_sv);
+    list<string> tid_sl(tid_sv.begin(), tid_sv.end());
+
+    tid_sl.remove(kDefaultDBEntry);
+    tid_sl.remove(id_s);
+    entry_descriptors.push_back(DBEntryDescriptor(kDefaultDBEntry,
+                                                  rocks_entry_cfg));
+    entry_descriptors.push_back(DBEntryDescriptor(id_s,
+                                                  rocks_entry_cfg));
+
+    for (auto tid_s : tid_sl) {
+        entry_descriptors.push_back(DBEntryDescriptor(tid_s, rocks_entry_cfg));
+    }
+
+    DB::Open(rocks_db_cfg, "./OSCdb/orders", entry_descriptors,
+             &entry_handles, &orderdb);
+
+    DBWriteBatch order_batch;
+
+    char time_cs[81];
+    strftime((char *)time_cs, 81, "%a, %d %b %Y %H:%M:%S %z",
+             &transaction.transaction_date);
+    string time_s((char *)time_cs);
+    order_batch.Put(entry_handles[1], "date", time_s);
+
+    string cart_s = "";
+    for (auto item :transaction.shopping_cart.cart) {
+        if (!cart_s.empty()) {
+            cart_s.append("\n");
+        }
+        cart_s.append(to_string(item.first));
+        cart_s.append(":");
+        cart_s.append(to_string(item.second.second));
+    }
+    order_batch.Put(entry_handles[1], "items", cart_s);
+
+    order_batch.Put(entry_handles[1], "total",
+                    to_string(transaction.transaction_amount));
+
+    order_batch.Put(entry_handles[1], "shipaddr_name",
+                    transaction.shipping_address.shipping_name);
+    order_batch.Put(entry_handles[1], "shipaddr_street",
+                                      transaction.shipping_address.street);
+    order_batch.Put(entry_handles[1], "shipaddr_city",
+                                      transaction.shipping_address.city);
+    order_batch.Put(entry_handles[1], "shipaddr_state",
+                                      transaction.shipping_address.state);
+    order_batch.Put(entry_handles[1], "shipaddr_zip",
+                    to_string(transaction.shipping_address.zip));
+    order_batch.Put(entry_handles[1], "shipaddr_country",
+                                      transaction.shipping_address.country);
+    order_batch.Put(entry_handles[1], "cc_num",
+                    to_string(transaction.payment_info.cc_num));
+    order_batch.Put(entry_handles[1], "cc_exp",
+                                      transaction.payment_info.cc_exp);
+    order_batch.Put(entry_handles[1], "cc_cv2",
+                    to_string(transaction.payment_info.cc_cv2));
+
+    orderdb->Write(DBWriteOptions(), &order_batch);
+
+    for (auto entry : entry_handles) {
+        delete entry;
+    }
+    delete orderdb;
+
+    entry_descriptors.clear();
+
+    return 1;
+}
+
+Transaction StorageSystem::getTransaction(uuid_t id) {
+    rocksErr err;
+    vector<DBEntryDescriptor> entry_descriptors;
+    vector<DBEntryHandle*> entry_handles;
+    DB *orderdb;
+    char id_cs[37];
+    uuid_unparse_lower(id, (char *)id_cs);
+    string id_s((char *)id_cs);
+
+    entry_descriptors.push_back(DBEntryDescriptor(kDefaultDBEntry,
+                                                  rocks_entry_cfg));
+    entry_descriptors.push_back(DBEntryDescriptor(id_s, rocks_entry_cfg));
+
+    DB::OpenForReadOnly(rocks_db_cfg, "./OSCdb/orders", entry_descriptors,
+                        &entry_handles, &orderdb);
+
+    string dbval;
+    ShoppingCart cart;
+    orderdb->Get(DBReadOptions(), entry_handles[1], "items", &dbval);
+    for (auto item_ps : split(dbval, '\n')) {
+        vector<string> item_pv = split(item_ps, ':');
+        cart.addProduct(this->getProduct(stoul(item_pv[0])),
+                        (unsigned int)stoul(item_pv[1]));
+    }
+
+    Transaction ret(cart, id);
+    ret.is_finalized = true;
+
+    tm t_date;
+    orderdb->Get(DBReadOptions(), entry_handles[1], "date", &dbval);
+    strptime(dbval.c_str(), "%a, %d %b %Y %H:%M:%S %z", &t_date);
+    ret.setTransactionDate(t_date);
+
+    orderdb->Get(DBReadOptions(), entry_handles[1], "total", &dbval);
+    ret.setTransactionAmt(stof(dbval));
+
+    ShippingAddress addr;
+    orderdb->Get(DBReadOptions(), entry_handles[1], "shipaddr_name", &dbval);
+    addr.changeShippingName(dbval);
+    orderdb->Get(DBReadOptions(), entry_handles[1], "shipaddr_street", &dbval);
+    addr.changeStreet(dbval);
+    orderdb->Get(DBReadOptions(), entry_handles[1], "shipaddr_city", &dbval);
+    addr.changeCity(dbval);
+    orderdb->Get(DBReadOptions(), entry_handles[1], "shipaddr_state", &dbval);
+    addr.changeState(dbval);
+    orderdb->Get(DBReadOptions(), entry_handles[1], "shipaddr_zip", &dbval);
+    addr.changeZip((unsigned int)stoul(dbval));
+    orderdb->Get(DBReadOptions(), entry_handles[1], "shipaddr_country", &dbval);
+    addr.changeCountry(dbval);
+    ret.setShippingAddress(addr);
+
+    PaymentInfo cc;
+    orderdb->Get(DBReadOptions(), entry_handles[1], "cc_num", &dbval);
+    cc.cc_num = stoul(dbval);
+    orderdb->Get(DBReadOptions(), entry_handles[1], "cc_exp", &dbval);
+    cc.cc_exp = dbval;
+    orderdb->Get(DBReadOptions(), entry_handles[1], "cc_cv2", &dbval);
+    cc.cc_cv2 = (unsigned int)stoul(dbval);
+    ret.setPaymentInfo(cc);
+
+    for (auto entry : entry_handles) {
+        delete entry;
+    }
+    delete orderdb;
+
+    return ret;
+}
+
 int StorageSystem::initDB() {
     rocksErr err;
     vector<DBEntryDescriptor> entry_descriptors;
     vector<DBEntryHandle*> entry_handles;
     DB *userdb;
     DB *productdb;
+    DB *orderdb;
 
     DestroyDB("./OSCdb/users", rocks_cfg);
     DB::Open(rocks_cfg, "./OSCdb/users", &userdb);
@@ -243,9 +396,7 @@ int StorageSystem::initDB() {
                                      "a4b1288b-606f-4437-a9d1-19834fa36953\n"
                                      "c0fad0d6-1e93-4f2f-9e92-1f1824c7bfcc\n"
                                      "73536a85-eafc-4dfb-946f-9e56f58e73be\n"
-                                     "37781af8-21e9-41cb-b4cf-f23ae8fa6825\n"
-                                     "7217a7bd-5be3-4ce3-8e51-afa4c640a1de\n"
-                                     "0ca93973-a29e-4da9-bcad-c4a35b09b3c9\n");
+                                     "37781af8-21e9-41cb-b4cf-f23ae8fa6825");
 
     user_batch.Put(entry_handles[2], "items_in_cart", "999992778878:2\n"
                                                       "751492561585:2\n"
@@ -346,6 +497,107 @@ int StorageSystem::initDB() {
         delete entry;
     }
     delete productdb;
+
+    entry_descriptors.clear();
+
+    DestroyDB("./OSCdb/orders", rocks_cfg);
+    DB::Open(rocks_cfg, "./OSCdb/orders", &orderdb);
+
+    DBEntryHandle *testorder;
+    orderdb->CreateDBEntry(rocks_entry_cfg,
+                          "a4b1288b-606f-4437-a9d1-19834fa36953", &testorder);
+    delete testorder;
+    orderdb->CreateDBEntry(rocks_entry_cfg,
+                          "c0fad0d6-1e93-4f2f-9e92-1f1824c7bfcc", &testorder);
+    delete testorder;
+    orderdb->CreateDBEntry(rocks_entry_cfg,
+                          "73536a85-eafc-4dfb-946f-9e56f58e73be", &testorder);
+    delete testorder;
+    orderdb->CreateDBEntry(rocks_entry_cfg,
+                          "37781af8-21e9-41cb-b4cf-f23ae8fa6825", &testorder);
+    delete testorder;
+
+    delete orderdb;
+
+    entry_descriptors.push_back(DBEntryDescriptor(kDefaultDBEntry,
+                                                  rocks_entry_cfg));
+    entry_descriptors.push_back(DBEntryDescriptor(
+          "a4b1288b-606f-4437-a9d1-19834fa36953", rocks_entry_cfg));
+    entry_descriptors.push_back(DBEntryDescriptor(
+          "c0fad0d6-1e93-4f2f-9e92-1f1824c7bfcc", rocks_entry_cfg));
+    entry_descriptors.push_back(DBEntryDescriptor(
+          "73536a85-eafc-4dfb-946f-9e56f58e73be", rocks_entry_cfg));
+    entry_descriptors.push_back(DBEntryDescriptor(
+          "37781af8-21e9-41cb-b4cf-f23ae8fa6825", rocks_entry_cfg));
+
+    DB::Open(rocks_db_cfg, "./OSCdb/orders", entry_descriptors, &entry_handles,
+             &orderdb);
+
+    DBWriteBatch order_batch;
+    order_batch.Put(entry_handles[1], "date",
+                                      "Tue, 02 Sep 2016 11:04:07 +0000");
+    order_batch.Put(entry_handles[1], "items", "9780345507754:1");
+    order_batch.Put(entry_handles[1], "total", "7.99");
+    order_batch.Put(entry_handles[1], "shipaddr_name", "Test User, I");
+    order_batch.Put(entry_handles[1], "shipaddr_street", "56 Park Circle");
+    order_batch.Put(entry_handles[1], "shipaddr_city", "Starkville");
+    order_batch.Put(entry_handles[1], "shipaddr_state", "MS");
+    order_batch.Put(entry_handles[1], "shipaddr_zip", "39759");
+    order_batch.Put(entry_handles[1], "shipaddr_country", "USA");
+    order_batch.Put(entry_handles[1], "cc_num", "5174928299721390");
+    order_batch.Put(entry_handles[1], "cc_exp", "06/20");
+    order_batch.Put(entry_handles[1], "cc_cv2", "040");
+
+    order_batch.Put(entry_handles[2], "date",
+                                      "Tue, 06 Sep 2016 13:10:27 +0000");
+    order_batch.Put(entry_handles[2], "items", "9780345507754:24");
+    order_batch.Put(entry_handles[2], "total", "191.76");
+    order_batch.Put(entry_handles[2], "shipaddr_name", "Test User, I");
+    order_batch.Put(entry_handles[2], "shipaddr_street",
+                                      "603 Yellow Jacket Dr.");
+    order_batch.Put(entry_handles[2], "shipaddr_city", "Starkville");
+    order_batch.Put(entry_handles[2], "shipaddr_state", "MS");
+    order_batch.Put(entry_handles[2], "shipaddr_zip", "39759");
+    order_batch.Put(entry_handles[2], "shipaddr_country", "USA");
+    order_batch.Put(entry_handles[2], "cc_num", "4485063892992292");
+    order_batch.Put(entry_handles[2], "cc_exp", "12/18");
+    order_batch.Put(entry_handles[2], "cc_cv2", "960");
+
+    order_batch.Put(entry_handles[3], "date",
+                                      "Tue, 07 Sep 2016 16:23:26 +0000");
+    order_batch.Put(entry_handles[3], "items", "751492561585:1\n"
+                                               "999992778878:1");
+    order_batch.Put(entry_handles[3], "total", "74.98");
+    order_batch.Put(entry_handles[3], "shipaddr_name", "Test User, I");
+    order_batch.Put(entry_handles[3], "shipaddr_street",
+                                      "603 Yellow Jacket Dr.");
+    order_batch.Put(entry_handles[3], "shipaddr_city", "Starkville");
+    order_batch.Put(entry_handles[3], "shipaddr_state", "MS");
+    order_batch.Put(entry_handles[3], "shipaddr_zip", "39759");
+    order_batch.Put(entry_handles[3], "shipaddr_country", "USA");
+    order_batch.Put(entry_handles[3], "cc_num", "5174928299721390");
+    order_batch.Put(entry_handles[3], "cc_exp", "06/20");
+    order_batch.Put(entry_handles[3], "cc_cv2", "040");
+
+    order_batch.Put(entry_handles[4], "date",
+                                      "Tue, 10 Sep 2016 14:43:31 +0000");
+    order_batch.Put(entry_handles[4], "items", "630125948637:1");
+    order_batch.Put(entry_handles[4], "total", "22.19");
+    order_batch.Put(entry_handles[4], "shipaddr_name", "Test User, I");
+    order_batch.Put(entry_handles[4], "shipaddr_street", "56 Park Circle");
+    order_batch.Put(entry_handles[4], "shipaddr_city", "Starkville");
+    order_batch.Put(entry_handles[4], "shipaddr_state", "MS");
+    order_batch.Put(entry_handles[4], "shipaddr_zip", "39759");
+    order_batch.Put(entry_handles[4], "shipaddr_country", "USA");
+    order_batch.Put(entry_handles[4], "cc_num", "5174928299721390");
+    order_batch.Put(entry_handles[4], "cc_exp", "06/20");
+    order_batch.Put(entry_handles[4], "cc_cv2", "040");
+    orderdb->Write(DBWriteOptions(), &order_batch);
+
+    for (auto entry : entry_handles) {
+        delete entry;
+    }
+    delete orderdb;
 
     entry_descriptors.clear();
 

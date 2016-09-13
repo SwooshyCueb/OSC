@@ -22,7 +22,6 @@ class Transaction {
         char setPaymentInfo(PaymentInfo info);
         char setShippingAddress(ShippingAddress addr);
 
-    private:
         uuid_t transaction_id;
         tm transaction_date;
         ShoppingCart shopping_cart;

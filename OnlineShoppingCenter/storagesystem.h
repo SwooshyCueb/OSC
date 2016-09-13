@@ -31,6 +31,7 @@
 #include <sstream>
 #include <list>
 #include <cstdio>
+#include <uuid/uuid.h>
 
 #include "user.h"
 #include "transaction.h"
@@ -51,11 +52,8 @@ public:
     int storeUser(User user);
     Product getProduct(SKU UPC);
     int storeProduct(Product product);
+    Transaction getTransaction(uuid_t id);
     int storeTransaction(Transaction transaction);
-
-    /*
-    Transaction getTransaction(unsigned __int128);
-    */
 
     int initDB();
 private:
