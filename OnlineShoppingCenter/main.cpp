@@ -49,6 +49,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (initdb) {
+        // TOTO: Warn about data loss and confirm
         g_print("Populating database with sample data\n");
         dbengine.initDB();
         exit(0);

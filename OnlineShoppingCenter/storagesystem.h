@@ -9,6 +9,7 @@
 
 #define rocksErr rocksdb::Status
 #define DB rocksdb::DB
+#define DestroyDB rocksdb::DestroyDB
 #define DBEntryDescriptor rocksdb::ColumnFamilyDescriptor
 #define DBEntryHandle rocksdb::ColumnFamilyHandle
 #define DBOptions rocksdb::DBOptions

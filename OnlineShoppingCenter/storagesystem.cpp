@@ -117,6 +117,7 @@ int StorageSystem::initDB() {
     DB *userdb;
     DB *productdb;
 
+    DestroyDB("./OSCdb/users", rocks_cfg);
     DB::Open(rocks_cfg, "./OSCdb/users", &userdb);
 
     DBEntryHandle *testuser;
@@ -189,6 +190,7 @@ int StorageSystem::initDB() {
 
     entry_descriptors.clear();
 
+    DestroyDB("./OSCdb/products", rocks_cfg);
     DB::Open(rocks_cfg, "./OSCdb/products", &productdb);
 
     DBEntryHandle *testproduct;
