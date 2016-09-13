@@ -4,6 +4,14 @@
 #include "common.h"
 #include <iostream>
 
+#define P_NAME_SET 1
+#define P_UPC_SET 2
+#define P_PRICE_SET 4
+#define P_CATEGORY_SET 8
+#define P_QUANTITY_SET 16
+
+#define P_ALL_SET 31
+
 using namespace std;
 
 class Product
@@ -33,12 +41,15 @@ public:
 
     friend std::ostream& operator<<(std::ostream&, const Product&);
 
+    bool is_set = false;
+
 private:
-    SKU UPC;
-    unsigned int quantity;
+    SKU UPC = 0;
+    unsigned int quantity = 0;
     float price = 0;
-    string category;
-    string name;
+    string category = "Uncategorized";
+    string name = "UNDEFINED";
+    unsigned int parts_set = 0;
 
 };
 
