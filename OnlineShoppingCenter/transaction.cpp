@@ -6,7 +6,7 @@ using namespace std;
 Transaction::Transaction(ShoppingCart cart, PaymentInfo pay) {
     this->shopping_cart = cart;
     this->payment_info = pay;
-    uuid_generate(transaction_id)
+    uuid_generate(transaction_id);
 }
 
 Transaction::Transaction(ShoppingCart cart, uuid_t id) {

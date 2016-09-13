@@ -15,8 +15,8 @@ class Transaction {
         Transaction(ShoppingCart cart, PaymentInfo pay);
         Transaction(ShoppingCart cart, uuid_t id);
         Transaction(ShoppingCart cart);
-        char chargeCreditCard(float amt);
-        char setTransactionDate(string date);
+        char chargeCreditCard();
+        char setTransactionDate(tm date);
         char setShoppingCart(ShoppingCart cart);
         char setTransactionAmt(float amt);
         char setPaymentInfo(PaymentInfo info);
@@ -31,4 +31,5 @@ class Transaction {
         ShippingAddress shipping_address;
         bool is_finalized = false;
 
+};
 #endif // TRANSACTION_H
