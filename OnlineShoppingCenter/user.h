@@ -12,8 +12,8 @@ using namespace std;
 class User
 {
 public:
+    User();
     User(string new_user_name, TransactionHistory new_transaction_history);
-    User(string new_user_name);
 
     int changeCreditCard(PaymentInfo new_cc);
     int changeShippingAddress(ShippingAddress new_shipping_address);
@@ -24,6 +24,7 @@ public:
     int transaction_history_id;
     TransactionHistory transaction_history;
     ShoppingCart shopping_cart;
+    bool is_set = false;
 
 };
 

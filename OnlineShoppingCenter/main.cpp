@@ -1,27 +1,30 @@
 #include "common.h"
 #include "storagesystem.h"
+#include "user.h"
 
 #include <iostream>
 #include <unistd.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <system_error>
 
 using namespace std;
 
 namespace globals {
     StorageSystem local_storage;
+    User logged_in;
 }
 
-static gchar *username = NULL;
-static gchar *password = NULL;
+static gchar *username_cs = NULL;
+static gchar *password_cs = NULL;
 static gboolean initdb = FALSE;
 
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 static GOptionEntry entries[] =
 {
-    { "user", 'u', 0, G_OPTION_ARG_STRING, &username,
+    { "user", 'u', 0, G_OPTION_ARG_STRING, &username_cs,
       "Username for logging in (required if not --init)", "username" },
-    { "password", 'p', 0, G_OPTION_ARG_STRING, &password,
+    { "password", 'p', 0, G_OPTION_ARG_STRING, &password_cs,
       "Password for authentication (required if not --init)", "password" },
     { "init", 0, 0, G_OPTION_ARG_NONE, &initdb,
       "Populate the database with sample data", NULL },
@@ -32,6 +35,7 @@ static GOptionEntry entries[] =
 int main(int argc, char *argv[]) {
     GError *error = NULL;
     GOptionContext *context;
+    string cmd;
 
     // argument parsing
     context = g_option_context_new("- Online Shopping Center command line "
@@ -52,24 +56,53 @@ int main(int argc, char *argv[]) {
     }
 
     if (initdb) {
-        // TOTO: Warn about data loss and confirm
-        g_print("Populating database with sample data\n");
-        globals::local_storage.initDB();
+        g_print("WARNING: Populating the database will destroy any database "
+                "already present in the current directory.\n\n"
+                "Are you SURE you want to do this [y/N]? ");
+        getline(cin, cmd);
+        if (cmd.front() == 'y' || cmd.front() == 'Y') {
+            g_print("Populating database with sample data\n"
+                    "This can take some time, depending on your system.\n");
+            globals::local_storage.initDB();
+        } else {
+            g_print("Exiting.\n");
+        }
         exit(0);
     }
 
-    if (username == NULL) {
+    if (username_cs == NULL) {
         // user did not provide  username
         g_printerr("Please provide username.\n"
                    "See `%s --help` for more information.\n", argv[0]);
         exit(1);
     }
 
-    if (password == NULL) {
+    if (password_cs == NULL) {
         // user did not provide a password
         g_printerr("Please provide password.\n"
                    "See `%s --help` for more information.\n", argv[0]);
         exit(1);
+    }
+
+    g_print("Authenticating...\n");
+    try {
+        globals::logged_in = globals::local_storage.getUser(username_cs);
+    } catch (const system_error &e) {
+        g_printerr("Authentication failed...\n");
+        exit(1);
+    }
+
+    g_print("Logged in as %s.\n", globals::logged_in.user_name.c_str());
+
+    while (true) {
+        g_print("\nCurrent inventory:\n");
+        // TODO: Print inventory here.
+        g_print("\nAvailable commands:\n");
+        g_print("addtocart <UPC> [qty]   Add product to cart\n");
+        g_print("cart                    Manage shopping cart\n");
+        g_print("profile                 Manage personal information\n");
+        g_print("exit                    Log out and close OSC\n");
+        getline(cin, cmd);
     }
 
     return 0;
