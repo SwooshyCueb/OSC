@@ -1,10 +1,13 @@
 #include "product.h"
 
+using namespace std;
+
 Product::Product()
 {
-    std::cout << "product created.";
+    cout << "product created.";
 }
-Product::Product(int new_upc, std::string new_name, float new_price, std::string new_catagory, int new_quantity){
+Product::Product(SKU new_upc, string new_name, float new_price,
+                 string new_catagory, unsigned int new_quantity){
     UPC = new_upc;
     name = new_name;
     price = new_price;
@@ -12,7 +15,7 @@ Product::Product(int new_upc, std::string new_name, float new_price, std::string
     quantity = new_quantity;
 }
 
-int Product::setUPC(int new_upc){
+int Product::setUPC(SKU new_upc){
     UPC = new_upc;
     return 1;
 }
@@ -20,11 +23,11 @@ int Product::getUPC() {
     return UPC;
 }
 
-int Product::setName(std::string new_name) {
+int Product::setName(string new_name) {
     name = new_name;
     return 1;
 }
-std::string Product::getName() {
+string Product::getName() {
     return name;
 }
 int Product::setPrice(float new_price){
@@ -34,11 +37,11 @@ int Product::setPrice(float new_price){
 float Product::getPrice() {
     return price;
 }
-int Product::setCatagory(std::string new_catagory) {
+int Product::setCatagory(string new_catagory) {
     catagory = new_catagory;
     return 1;
 }
-int Product::setQuantity(int new_quantity) {
+int Product::setQuantity(unsigned int new_quantity) {
     quantity = new_quantity;
     return 1;
 }
@@ -46,11 +49,11 @@ int Product::getQuantity(){
     return quantity;
 }
 void Product::print() {
-    std::cout << UPC << " " << name << " " << catagory << " " << price << " " << quantity << std::endl;
+    std::cout << UPC << " " << name << " " << catagory << " " << price << " " << quantity << endl;
 }
 
-std::ostream& operator<<(std::ostream &strm, const Product& a) {
-    std::cout << a.UPC;
+std::ostream& operator<<(ostream &strm, const Product& a) {
+    cout << a.UPC;
     strm << "A(" << a.UPC << ", " << a.name << ", $" << a.price << ", " << a.catagory << ", " << a.quantity << ")";
     return strm;
 }

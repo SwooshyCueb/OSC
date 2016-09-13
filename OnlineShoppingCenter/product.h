@@ -4,40 +4,41 @@
 #include "common.h"
 #include <iostream>
 
+using namespace std;
+
 class Product
 {
 
 public:
     Product();
-    Product(int, std::string, float, std::string, int);
+    Product(SKU new_upc, string new_name, float new_price, string new_category,
+            unsigned int new_quantity);
 
-    int setUPC(int new_upc);
-    int getUPC();
+    int setUPC(SKU new_upc);
+    SKU getUPC();
 
-    int setName(std::string new_name);
-    std::string getName();
+    int setName(string new_name);
+    string getName();
 
     int setPrice(float new_price);
     float getPrice();
 
-    int setCatagory(std::string new_catagory);
-    std::string getCatagory();
+    int setCategory(string new_category);
+    string getCategory();
 
-    int setQuantity(int new_quantity);
-    int getQuantity();
+    int setQuantity(unsigned int new_quantity);
+    unsigned int getQuantity();
 
     void print();
 
     friend std::ostream& operator<<(std::ostream&, const Product&);
 
 private:
-    int UPC;
-    int quantity;
+    SKU UPC;
+    unsigned int quantity;
     float price = 0;
-    std::string catagory;
-    std::string name;
-
-
+    string category;
+    string name;
 
 };
 
