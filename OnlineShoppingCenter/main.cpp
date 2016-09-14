@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
     GError *error = NULL;
     GOptionContext *context;
     string cmd;
+    vector<string> cmd_parts;
 
     // argument parsing
     context = g_option_context_new("- Online Shopping Center command line "
@@ -95,14 +96,41 @@ int main(int argc, char *argv[]) {
     g_print("Logged in as %s.\n", globals::logged_in.user_name.c_str());
 
     while (true) {
-        g_print("\nCurrent inventory:\n");
-        // TODO: Print inventory here.
-        g_print("\nAvailable commands:\n");
-        g_print("addtocart <UPC> [qty]   Add product to cart\n");
-        g_print("cart                    Manage shopping cart\n");
-        g_print("profile                 Manage personal information\n");
-        g_print("exit                    Log out and close OSC\n");
+        g_print("\n\033[1;4mCurrent inventory:\033[0m\n");
+        vector<SKU> prodlist = globals::local_storage.getProducts();
+        for (auto upc : prodlist) {
+            Product prod = globals::local_storage.getProduct(upc);
+            g_print("%lu:\t\033[1m%s\033[0m\n  ", upc, prod.getName().c_str());
+            g_print("Price: $%04.2f\t", prod.getPrice());
+            g_print("On hand: %u\t", prod.getQuantity());
+            g_print("Category: %s\n", prod.getCategory().c_str());
+        }
+        mainhelp:
+        g_print("\n\033[1;4mAvailable commands:\033[0m\n");
+        g_print("  addtocart <UPC> [qty]     Add product to cart\n");
+        g_print("  cart                      Manage shopping cart\n");
+        g_print("  profile                   Manage personal information\n");
+        g_print("  exit                      Log out and close OSC\n");
+        g_print("\n");
+        mainshell:
+        g_print(">>> ");
         getline(cin, cmd);
+        cmd_parts = split(cmd, ' ');
+        if (cmd_parts.empty()) {
+            goto mainshell;
+        } else if (cmd_parts[0] == "exit") {
+            g_print("Exiting.\n");
+            exit(0);
+        } else if (cmd_parts[0] == "addtocart") {
+            // code goes here
+        } else if (cmd_parts[0] == "cart") {
+            // code goes here
+        } else if (cmd_parts[0] == "profile") {
+            // code goes here
+        } else {
+            g_print("'%s' is an unrecognized command.\n", cmd_parts[0].c_str());
+            goto mainhelp;
+        }
     }
 
     return 0;
