@@ -526,6 +526,8 @@ int StorageSystem::initDB() {
     }
     delete userdb;
 
+    g_print("Created users: testuser001, testuser002, testuser003, testuser004");
+
     entry_descriptors.clear();
 
     DestroyDB("./OSCdb/products", rocks_cfg);
@@ -624,7 +626,6 @@ int StorageSystem::initDB() {
     product_batch.Put(entry_handles[5], "on_hand", "21");
 
     //HOLDER
-    DBWriteBatch product_batch;
     product_batch.Put(entry_handles[6], "name", "Staples");
     product_batch.Put(entry_handles[6], "category", "Household Items");
     product_batch.Put(entry_handles[6], "price", "2.00");
