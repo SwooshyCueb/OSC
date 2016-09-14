@@ -297,6 +297,23 @@ Product StorageSystem::getProduct(SKU UPC) {
     return ret;
 }
 
+vector<SKU> StorageSystem::getProducts() {
+    rocksErr err;
+
+    vector<string> upc_sv;
+    err = DBgetEntries(rocks_db_cfg, "./OSCdb/products", &upc_sv);
+    list<string> upc_sl(upc_sv.begin(), upc_sv.end());
+
+    upc_sl.remove(kDefaultDBEntry);
+
+    vector<SKU> upc_v;
+    for (auto upc_s : upc_sl) {
+        upc_v.push_back(stoul(upc_s));
+    }
+
+    return upc_v;
+}
+
 int StorageSystem::storeTransaction(Transaction transaction) {
     rocksErr err;
     vector<DBEntryDescriptor> entry_descriptors;

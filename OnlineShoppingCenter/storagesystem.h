@@ -50,8 +50,11 @@ public:
 
     User getUser(string username);
     int storeUser(User user);
+
     Product getProduct(SKU UPC);
     int storeProduct(Product product);
+    vector<SKU> getProducts();
+
     Transaction getTransaction(uuid_t id);
     int storeTransaction(Transaction transaction);
 
