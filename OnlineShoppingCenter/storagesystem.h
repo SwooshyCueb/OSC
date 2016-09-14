@@ -30,6 +30,7 @@
 #include <vector>
 #include <sstream>
 #include <list>
+#include <set>
 #include <cstdio>
 #include <uuid/uuid.h>
 
@@ -60,9 +61,13 @@ public:
 
     int initDB();
 private:
-    DBOptions rocks_db_cfg;
     DBEntryOptions rocks_entry_cfg;
-    rocksOptions rocks_cfg;
+
+    DBOptions rocks_db_cfg_r;
+    rocksOptions rocks_cfg_r;
+
+    DBOptions rocks_db_cfg_w;
+    rocksOptions rocks_cfg_w;
 
 };
 

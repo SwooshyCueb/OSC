@@ -16,13 +16,18 @@ StorageSystem::StorageSystem() {
         }
     }
 
-    rocks_db_cfg.OptimizeForSmallDb();
-    rocks_db_cfg.create_if_missing = true;
-    rocks_db_cfg.create_missing_column_families = false;
+    rocks_db_cfg_r.OptimizeForSmallDb();
+    rocks_db_cfg_r.create_if_missing = true;
+    rocks_db_cfg_r.create_missing_column_families = false;
+
+    rocks_db_cfg_w.OptimizeForSmallDb();
+    rocks_db_cfg_w.create_if_missing = true;
+    rocks_db_cfg_w.create_missing_column_families = true;
 
     rocks_entry_cfg.OptimizeForSmallDb();
 
-    rocks_cfg = rocksOptions(rocks_db_cfg, rocks_entry_cfg);
+    rocks_cfg_r = rocksOptions(rocks_db_cfg_r, rocks_entry_cfg);
+    rocks_cfg_w = rocksOptions(rocks_db_cfg_w, rocks_entry_cfg);
 }
 
 int StorageSystem::storeUser(User user) {
@@ -32,11 +37,11 @@ int StorageSystem::storeUser(User user) {
     DB *userdb;
 
     vector<string> username_sv;
-    err = DBgetEntries(rocks_db_cfg, "./OSCdb/users", &username_sv);
-    list<string> username_sl(username_sv.begin(), username_sv.end());
+    err = DBgetEntries(rocks_db_cfg_r, "./OSCdb/users", &username_sv);
+    set<string> username_sl(username_sv.begin(), username_sv.end());
 
-    username_sl.remove(kDefaultDBEntry);
-    username_sl.remove(user.user_name);
+    username_sl.erase(kDefaultDBEntry);
+    username_sl.erase(user.user_name);
     entry_descriptors.push_back(DBEntryDescriptor(kDefaultDBEntry,
                                                   rocks_entry_cfg));
     entry_descriptors.push_back(DBEntryDescriptor(user.user_name,
@@ -47,7 +52,7 @@ int StorageSystem::storeUser(User user) {
                                                       rocks_entry_cfg));
     }
 
-    DB::Open(rocks_db_cfg, "./OSCdb/users", entry_descriptors,
+    DB::Open(rocks_db_cfg_w, "./OSCdb/users", entry_descriptors,
              &entry_handles, &userdb);
 
     DBWriteBatch user_batch;
@@ -138,7 +143,7 @@ User StorageSystem::getUser(string username) {
                                                   rocks_entry_cfg));
     entry_descriptors.push_back(DBEntryDescriptor(username, rocks_entry_cfg));
 
-    err = DB::OpenForReadOnly(rocks_db_cfg, "./OSCdb/users",
+    err = DB::OpenForReadOnly(rocks_db_cfg_r, "./OSCdb/users",
                               entry_descriptors , &entry_handles, &userdb);
     if (!err.ok()) {
         throw system_error(int(err.code()), generic_category(),
@@ -225,11 +230,11 @@ int StorageSystem::storeProduct(Product product) {
         return 0;
 
     vector<string> upc_sv;
-    err = DBgetEntries(rocks_db_cfg, "./OSCdb/products", &upc_sv);
-    list<string> upc_sl(upc_sv.begin(), upc_sv.end());
+    err = DBgetEntries(rocks_db_cfg_r, "./OSCdb/products", &upc_sv);
+    set<string> upc_sl(upc_sv.begin(), upc_sv.end());
 
-    upc_sl.remove(kDefaultDBEntry);
-    upc_sl.remove(to_string(product.getUPC()));
+    upc_sl.erase(kDefaultDBEntry);
+    upc_sl.erase(to_string(product.getUPC()));
     entry_descriptors.push_back(DBEntryDescriptor(kDefaultDBEntry,
                                                   rocks_entry_cfg));
     entry_descriptors.push_back(DBEntryDescriptor(to_string(product.getUPC()),
@@ -239,7 +244,7 @@ int StorageSystem::storeProduct(Product product) {
         entry_descriptors.push_back(DBEntryDescriptor(upc_s, rocks_entry_cfg));
     }
 
-    DB::Open(rocks_db_cfg, "./OSCdb/products", entry_descriptors,
+    DB::Open(rocks_db_cfg_w, "./OSCdb/products", entry_descriptors,
              &entry_handles, &productdb);
 
     DBWriteBatch product_batch;
@@ -272,7 +277,7 @@ Product StorageSystem::getProduct(SKU UPC) {
     entry_descriptors.push_back(DBEntryDescriptor(to_string(UPC),
                                                   rocks_entry_cfg));
 
-    err = DB::OpenForReadOnly(rocks_db_cfg, "./OSCdb/products",
+    err = DB::OpenForReadOnly(rocks_db_cfg_r, "./OSCdb/products",
                               entry_descriptors, &entry_handles, &productdb);
 
     if (!err.ok()) {
@@ -306,7 +311,7 @@ vector<SKU> StorageSystem::getProducts() {
     rocksErr err;
 
     vector<string> upc_sv;
-    err = DBgetEntries(rocks_db_cfg, "./OSCdb/products", &upc_sv);
+    err = DBgetEntries(rocks_db_cfg_r, "./OSCdb/products", &upc_sv);
     list<string> upc_sl(upc_sv.begin(), upc_sv.end());
 
     upc_sl.remove(kDefaultDBEntry);
@@ -333,11 +338,11 @@ int StorageSystem::storeTransaction(Transaction transaction) {
         return 0;
 
     vector<string> tid_sv;
-    err = DBgetEntries(rocks_db_cfg, "./OSCdb/orders", &tid_sv);
-    list<string> tid_sl(tid_sv.begin(), tid_sv.end());
+    err = DBgetEntries(rocks_db_cfg_r, "./OSCdb/orders", &tid_sv);
+    set<string> tid_sl(tid_sv.begin(), tid_sv.end());
 
-    tid_sl.remove(kDefaultDBEntry);
-    tid_sl.remove(id_s);
+    tid_sl.erase(kDefaultDBEntry);
+    tid_sl.erase(id_s);
     entry_descriptors.push_back(DBEntryDescriptor(kDefaultDBEntry,
                                                   rocks_entry_cfg));
     entry_descriptors.push_back(DBEntryDescriptor(id_s,
@@ -347,7 +352,7 @@ int StorageSystem::storeTransaction(Transaction transaction) {
         entry_descriptors.push_back(DBEntryDescriptor(tid_s, rocks_entry_cfg));
     }
 
-    DB::Open(rocks_db_cfg, "./OSCdb/orders", entry_descriptors,
+    DB::Open(rocks_db_cfg_w, "./OSCdb/orders", entry_descriptors,
              &entry_handles, &orderdb);
 
     DBWriteBatch order_batch;
@@ -416,7 +421,7 @@ Transaction StorageSystem::getTransaction(uuid_t id) {
                                                   rocks_entry_cfg));
     entry_descriptors.push_back(DBEntryDescriptor(id_s, rocks_entry_cfg));
 
-    DB::OpenForReadOnly(rocks_db_cfg, "./OSCdb/orders", entry_descriptors,
+    DB::OpenForReadOnly(rocks_db_cfg_r, "./OSCdb/orders", entry_descriptors,
                         &entry_handles, &orderdb);
 
     string dbval;
@@ -479,8 +484,8 @@ int StorageSystem::initDB() {
     DB *productdb;
     DB *orderdb;
 
-    DestroyDB("./OSCdb/users", rocks_cfg);
-    DB::Open(rocks_cfg, "./OSCdb/users", &userdb);
+    DestroyDB("./OSCdb/users", rocks_cfg_w);
+    DB::Open(rocks_cfg_w, "./OSCdb/users", &userdb);
 
     DBEntryHandle *testuser;
     userdb->CreateDBEntry(rocks_entry_cfg, "testuser001", &testuser);
@@ -505,7 +510,7 @@ int StorageSystem::initDB() {
     entry_descriptors.push_back(DBEntryDescriptor("testuser004",
                                                   rocks_entry_cfg));
 
-    DB::Open(rocks_db_cfg, "./OSCdb/users", entry_descriptors, &entry_handles,
+    DB::Open(rocks_db_cfg_w, "./OSCdb/users", entry_descriptors, &entry_handles,
              &userdb);
 
     DBWriteBatch user_batch;
@@ -552,8 +557,8 @@ int StorageSystem::initDB() {
 
     entry_descriptors.clear();
 
-    DestroyDB("./OSCdb/products", rocks_cfg);
-    DB::Open(rocks_cfg, "./OSCdb/products", &productdb);
+    DestroyDB("./OSCdb/products", rocks_cfg_w);
+    DB::Open(rocks_cfg_w, "./OSCdb/products", &productdb);
 
     DBEntryHandle *testproduct;
     // Bop It
@@ -614,7 +619,7 @@ int StorageSystem::initDB() {
     entry_descriptors.push_back(DBEntryDescriptor("452368735260",
                                                   rocks_entry_cfg));
 
-    DB::Open(rocks_db_cfg, "./OSCdb/products", entry_descriptors,
+    DB::Open(rocks_db_cfg_w, "./OSCdb/products", entry_descriptors,
              &entry_handles, &productdb);
 
     DBWriteBatch product_batch;
@@ -682,8 +687,8 @@ int StorageSystem::initDB() {
 
     entry_descriptors.clear();
 
-    DestroyDB("./OSCdb/orders", rocks_cfg);
-    DB::Open(rocks_cfg, "./OSCdb/orders", &orderdb);
+    DestroyDB("./OSCdb/orders", rocks_cfg_w);
+    DB::Open(rocks_cfg_w, "./OSCdb/orders", &orderdb);
 
     DBEntryHandle *testorder;
     orderdb->CreateDBEntry(rocks_entry_cfg,
@@ -712,7 +717,7 @@ int StorageSystem::initDB() {
     entry_descriptors.push_back(DBEntryDescriptor(
           "37781af8-21e9-41cb-b4cf-f23ae8fa6825", rocks_entry_cfg));
 
-    DB::Open(rocks_db_cfg, "./OSCdb/orders", entry_descriptors, &entry_handles,
+    DB::Open(rocks_db_cfg_w, "./OSCdb/orders", entry_descriptors, &entry_handles,
              &orderdb);
 
     DBWriteBatch order_batch;
