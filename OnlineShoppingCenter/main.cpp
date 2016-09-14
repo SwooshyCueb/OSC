@@ -200,6 +200,46 @@ int main(int argc, char *argv[]) {
                     exit(0);
                 } else if (cmd_parts[0] == "back") {
                     break;
+                } else if (cmd_parts[0] == "remove") {
+                    // code goes here
+                } else if (cmd_parts[0] == "changeqty") {
+                    if (cmd_parts.size() < 3) {
+                        g_printerr("Invalid use of changeqty.\n");
+                        goto carthelp;
+                    }
+                    unsigned int new_qty;
+                    SKU sel_upc;
+                    try {
+                        sel_upc = stoul(cmd_parts[1]);
+                    } catch (const invalid_argument &e) {
+                        g_printerr("'%s' is not a valid UPC.\n", cmd_parts[1].c_str());
+                        continue;
+                    }
+                    try {
+                        new_qty = (unsigned int)stoul(cmd_parts[2]);
+                    } catch (const invalid_argument &e) {
+                        g_printerr("'%s' is not a valid quantity.\n", cmd_parts[2].c_str());
+                        goto carthelp;
+                    }
+                    if (!globals::logged_in.shopping_cart.checkCart(sel_upc)) {
+                        g_printerr("No item with UPC %lu exists in the cart.\v", sel_upc);
+                        continue;
+                    }
+                    if (new_qty > globals::logged_in.shopping_cart.cart[sel_upc].first.getQuantity()) {
+                        g_printerr("WARNING: There are only %u of this item in stock.\n", globals::logged_in.shopping_cart.cart[sel_upc].first.getQuantity());
+                        g_printerr("         The specified quantity %u is greater than our on-hand count.\n", new_qty);
+                        g_printerr("         You will not be able to checkout with an invalid quantity.\n");
+                        g_printerr("         WE CANNOT PLACE ITEMS ON BACKORDER.\n");
+                        g_printerr("\n");
+                    }
+                    globals::logged_in.shopping_cart.changeQuantity(sel_upc, new_qty);
+                    g_print("Quantity updated.\n");
+                    continue;
+                } else if (cmd_parts[0] == "clear") {
+                    globals::logged_in.shopping_cart.emptyCart();
+                    g_print("Your cart has been emptied.\n");
+                    g_print("Returning to main menu...\n");
+                    break;
                 } else {
                     g_printerr("'%s' is an unrecognized command.\n", cmd_parts[0].c_str());
                     goto carthelp;
