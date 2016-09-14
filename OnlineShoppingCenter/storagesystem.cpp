@@ -98,7 +98,7 @@ int StorageSystem::storeUser(User user) {
         if (order.is_finalized == false)
             continue;
 
-        if (orders_s.empty()) {
+        if (!orders_s.empty()) {
             orders_s.append("\n");
         }
 
