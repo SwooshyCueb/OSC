@@ -79,13 +79,12 @@ int Product::setQuantity(unsigned int new_quantity) {
 
     quantity = new_quantity;
 
-    globals::local_storage.storeProduct(*this);
-
     parts_set |= P_QUANTITY_SET;
     if (parts_set == P_ALL_SET) {
         is_set = true;
     }
 
+    globals::local_storage.storeProduct(*this);
     return 1;
 }
 unsigned int Product::getQuantity(){

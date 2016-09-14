@@ -1,4 +1,5 @@
 #include "user.h"
+#include "storagesystem.h"
 
 using namespace std;
 
@@ -28,11 +29,14 @@ int User::changeCreditCard(PaymentInfo new_cc) {
 
     payment_info = new_cc;
 
+    globals::local_storage.storeUser(*this);
     return 1;
 }
 
 int User::changeShippingAddress(ShippingAddress new_shipping_address){
     shipping_address = new_shipping_address;
+
+    globals::local_storage.storeUser(*this);
     return 1;
 }
 
