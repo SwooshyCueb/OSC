@@ -11,8 +11,12 @@ ShoppingCart::ShoppingCart()
 
 int ShoppingCart::addProduct(Product p) {
 
-    if (!ShoppingCart::checkCart(p))
+    if (!ShoppingCart::checkCart(p)) {
         cart[p.getUPC()] = make_pair(p, 1);
+        if (this == &(globals::logged_in.shopping_cart)) {
+            globals::local_storage.storeUser(globals::logged_in);
+        }
+    }
 
     return 1;
 }
@@ -22,6 +26,9 @@ int ShoppingCart::addProduct(Product p, unsigned int qty) {
         deleteProduct(p);
     }
     cart[p.getUPC()] = make_pair(p, qty);
+    if (this == &(globals::logged_in.shopping_cart)) {
+        globals::local_storage.storeUser(globals::logged_in);
+    }
     return 1;
 }
 
@@ -36,12 +43,15 @@ int ShoppingCart::addProduct(SKU UPC) {
 }
 
 int ShoppingCart::deleteProduct(Product p) {
-    cart.erase(p.getUPC());
+    deleteProduct(p.getUPC());
     return 1;
 }
 
 int ShoppingCart::deleteProduct(SKU UPC) {
     cart.erase(UPC);
+    if (this == &(globals::logged_in.shopping_cart)) {
+        globals::local_storage.storeUser(globals::logged_in);
+    }
     return 1;
 }
 
@@ -98,6 +108,9 @@ bool ShoppingCart::isEmpty() {
 
 int ShoppingCart::emptyCart() {
     cart.clear();
+    if (this == &(globals::logged_in.shopping_cart)) {
+        globals::local_storage.storeUser(globals::logged_in);
+    }
     return 1;
 }
 
@@ -133,8 +146,9 @@ Transaction ShoppingCart::buyCart() {
     Transaction t = Transaction(*this);
 
     // create new empty cart for logged in user.
-    ShoppingCart new_sc;
-    globals::logged_in.shopping_cart = new_sc;
+    // ShoppingCart new_sc;
+    // globals::logged_in.shopping_cart = new_sc;
+    // Actually, this can also wait until the transaction is finalized.
 
     return t;
 }

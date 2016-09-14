@@ -1,5 +1,6 @@
 #include "transaction.h"
 #include <string>
+#include "storagesystem.h"
 
 using namespace std;
 
@@ -7,24 +8,47 @@ Transaction::Transaction(ShoppingCart cart, PaymentInfo pay) {
     this->shopping_cart = cart;
     this->payment_info = pay;
     uuid_generate(transaction_id);
+    transaction_amount = 0;
+    for (auto item : cart.cart) {
+        transaction_amount += item.second.first.getPrice() * float(item.second.second);
+    }
 }
 
 Transaction::Transaction(ShoppingCart cart, uuid_t id) {
     this->shopping_cart = cart;
     uuid_copy(transaction_id, id);
-    // Calculate total, store in transaction_amount
+    transaction_amount = 0;
+    for (auto item : cart.cart) {
+        transaction_amount += item.second.first.getPrice() * float(item.second.second);
+    }
 }
 Transaction::Transaction(ShoppingCart cart) {
     shopping_cart = cart;
     uuid_generate(transaction_id);
-    // Calculate total, store in transaction_amount
+    transaction_amount = 0;
+    for (auto item : cart.cart) {
+        transaction_amount += item.second.first.getPrice() * float(item.second.second);
+    }
 }
 
 char Transaction::chargeCreditCard() {
     time_t t = time(NULL);
     transaction_date = *(gmtime(&t));
     is_finalized = true;
-    // update product quantity in-stock
+    for (auto p : shopping_cart.cart) {
+        if (p.second.first.getQuantity() < p.second.second) {
+            throw runtime_error("Cannot finalize a transaction with invalid quantities.");
+        }
+        p.second.first.setQuantity(p.second.first.getQuantity() - p.second.second);
+        globals::local_storage.storeProduct(p.second.first);
+    }
+    globals::local_storage.storeTransaction(*this);
+
+    ShoppingCart new_sc;
+    globals::logged_in.shopping_cart = new_sc;
+    globals::logged_in.transaction_history.addTransaction(*this);
+
+    globals::local_storage.storeUser(globals::logged_in);
     return 1;
 }
 
