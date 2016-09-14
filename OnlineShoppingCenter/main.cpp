@@ -165,27 +165,33 @@ int main(int argc, char *argv[]) {
                 g_print("\n\033[1;4mShopping cart:\033[0m\n");
                 bool invalid_qty = false;
                 float total = 0;
-                for (auto prod_spp : globals::logged_in.shopping_cart.cart) {
-                    total += prod_spp.second.first.getPrice() * float(prod_spp.second.second);
-                    g_print("%lu:\t\033[1m%s\033[0m\n  ", prod_spp.first, prod_spp.second.first.getName().c_str());
-                    g_print("Qty: %u\t", prod_spp.second.second);
-                    g_print("Price: $%04.2f ($%04.2f/ea)\n", prod_spp.second.first.getPrice() * float(prod_spp.second.second), prod_spp.second.first.getPrice());
-                    if (prod_spp.second.second > prod_spp.second.first.getQuantity()) {
-                        invalid_qty = true;
+                if (globals::logged_in.shopping_cart.cart.empty()) {
+                    g_print("Cart is empty.\n");
+                } else {
+                    for (auto prod_spp : globals::logged_in.shopping_cart.cart) {
+                        total += prod_spp.second.first.getPrice() * float(prod_spp.second.second);
+                        g_print("%lu:\t\033[1m%s\033[0m\n  ", prod_spp.first, prod_spp.second.first.getName().c_str());
+                        g_print("Qty: %u\t", prod_spp.second.second);
+                        g_print("Price: $%04.2f ($%04.2f/ea)\n", prod_spp.second.first.getPrice() * float(prod_spp.second.second), prod_spp.second.first.getPrice());
+                        if (prod_spp.second.second > prod_spp.second.first.getQuantity()) {
+                            invalid_qty = true;
+                        }
                     }
-                }
-                g_print("\033[1mTotal: $%04.2f\033[0m\n", total);
-                if (invalid_qty) {
-                    g_printerr("\n");
-                    g_printerr("WARNING: One or more entries in your cart have an invalid qauntity.\n");
-                    g_printerr("         You will not be able to checkout with an invalid quantity.\n");
-                    g_printerr("         WE CANNOT PLACE ITEMS ON BACKORDER.\n");
+                    g_print("\033[1mTotal: $%04.2f\033[0m\n", total);
+                    if (invalid_qty) {
+                        g_printerr("\n");
+                        g_printerr("WARNING: One or more entries in your cart have an invalid qauntity.\n");
+                        g_printerr("         You will not be able to checkout with an invalid quantity.\n");
+                        g_printerr("         WE CANNOT PLACE ITEMS ON BACKORDER.\n");
+                    }
                 }
                 carthelp:
                 g_print("\n\033[1;4mAvailable commands:\033[0m\n");
-                g_print("  changeqty <UPC> <qty>     Change quantity of item\n");
-                g_print("  remove <UPC>              Remove item from cart\n");
-                g_print("  clear                     Remove all items from cart\n");
+                if (!globals::logged_in.shopping_cart.cart.empty()) {
+                    g_print("  changeqty <UPC> <qty>     Change quantity of item\n");
+                    g_print("  remove <UPC>              Remove item from cart\n");
+                    g_print("  clear                     Remove all items from cart\n");
+                }
                 g_print("  back                      Back to main menu\n");
                 g_print("  exit                      Log out and close OSC\n");
                 g_print("\n");
@@ -201,7 +207,24 @@ int main(int argc, char *argv[]) {
                 } else if (cmd_parts[0] == "back") {
                     break;
                 } else if (cmd_parts[0] == "remove") {
-                    // code goes here
+                    if (cmd_parts.size() < 2) {
+                        g_printerr("Invalid use of remove.\n");
+                        goto carthelp;
+                    }
+                    SKU sel_upc;
+                    try {
+                        sel_upc = stoul(cmd_parts[1]);
+                    } catch (const invalid_argument &e) {
+                        g_printerr("'%s' is not a valid UPC.\n", cmd_parts[1].c_str());
+                        continue;
+                    }
+                    if (!globals::logged_in.shopping_cart.checkCart(sel_upc)) {
+                        g_printerr("No item with UPC %lu exists in the cart.\n", sel_upc);
+                        continue;
+                    }
+                    globals::logged_in.shopping_cart.deleteProduct(sel_upc);
+                    g_print("Item removed from cart.\n");
+                    continue;
                 } else if (cmd_parts[0] == "changeqty") {
                     if (cmd_parts.size() < 3) {
                         g_printerr("Invalid use of changeqty.\n");
@@ -222,7 +245,7 @@ int main(int argc, char *argv[]) {
                         goto carthelp;
                     }
                     if (!globals::logged_in.shopping_cart.checkCart(sel_upc)) {
-                        g_printerr("No item with UPC %lu exists in the cart.\v", sel_upc);
+                        g_printerr("No item with UPC %lu exists in the cart.\n", sel_upc);
                         continue;
                     }
                     if (new_qty > globals::logged_in.shopping_cart.cart[sel_upc].first.getQuantity()) {
