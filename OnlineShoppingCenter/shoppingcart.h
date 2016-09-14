@@ -6,6 +6,7 @@
 
 #include <map>
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -23,11 +24,12 @@ public:
     void print();
     bool checkCart(Product p);
     bool checkCart(SKU UPC);
+    bool isEmpty();
     unsigned int getCount(Product p);
     unsigned int getCount(SKU UPC);
     int changeQuantity(Product p, unsigned int qty);
     int changeQuantity(SKU UPC, unsigned int qty);
-    int buyCart();
+    Transaction buyCart();
 
     map<SKU, pair<Product, unsigned int>> cart;
 

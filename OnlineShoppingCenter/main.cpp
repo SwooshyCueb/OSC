@@ -191,6 +191,9 @@ int main(int argc, char *argv[]) {
                     g_print("  changeqty <UPC> <qty>     Change quantity of item\n");
                     g_print("  remove <UPC>              Remove item from cart\n");
                     g_print("  clear                     Remove all items from cart\n");
+                    if(!invalid_qty) {
+                        g_print("  checkout                  Begin checkout process\n");
+                    }
                 }
                 g_print("  back                      Back to main menu\n");
                 g_print("  exit                      Log out and close OSC\n");

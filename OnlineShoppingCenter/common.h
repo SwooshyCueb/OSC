@@ -31,6 +31,7 @@ inline vector<string> split(const string &s, char delim) {
 
 class StorageSystem;
 class User;
+class Transaction;
 
 namespace globals {
     extern StorageSystem local_storage;

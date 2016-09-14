@@ -18,6 +18,9 @@ int ShoppingCart::addProduct(Product p) {
 }
 
 int ShoppingCart::addProduct(Product p, unsigned int qty) {
+    if (qty == 0) {
+        deleteProduct(p);
+    }
     cart[p.getUPC()] = make_pair(p, qty);
     return 1;
 }
@@ -89,9 +92,12 @@ bool ShoppingCart::checkCart(SKU UPC) {
     return false;
 }
 
+bool ShoppingCart::isEmpty() {
+    return cart.empty();
+}
+
 int ShoppingCart::emptyCart() {
     cart.clear();
-    std::cout << "You have emptied your shopping cart." << endl;
     return 1;
 }
 
@@ -108,23 +114,27 @@ void ShoppingCart::print() {
     }
 }
 
-int ShoppingCart::buyCart() {
-    //make transaction
-
-    Transaction t = Transaction(*this);
-
-    //update product quantity
-    for (auto p : cart) {
-        if (p.second.first.getQuantity() > p.second.second) {
-            p.second.first.setQuantity(p.second.first.getQuantity() - p.second.second);
-        }
-        else {
-            p.second.first.setQuantity(0); //add some error checking in add product
-        }
+Transaction ShoppingCart::buyCart() {
+    // Make sure we're actually the right cart
+    if (this != &(globals::logged_in.shopping_cart)) {
+        throw runtime_error("buyCart method called on non-user ShoppingCart.");
     }
 
-    //empty cart
-    cart.clear();
+    // Make sure quantities are valid
+    for (auto p : cart) {
+        if (p.second.first.getQuantity() < p.second.second) {
+            throw runtime_error("buyCart method called on cart containing invalid quantities.");
+        }
+        //p.second.first.setQuantity(p.second.first.getQuantity() - p.second.second);
+        // This should actually only be done once the transaction has been finalized.
+    }
 
-    return 1;
+    //make transaction
+    Transaction t = Transaction(*this);
+
+    // create new empty cart for logged in user.
+    ShoppingCart new_sc;
+    globals::logged_in.shopping_cart = new_sc;
+
+    return t;
 }
