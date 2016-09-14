@@ -598,7 +598,204 @@ int main(int argc, char *argv[]) {
                 } else if (cmd_parts[0] == "back") {
                     break;
                 } else if (cmd_parts[0] == "addr") {
+                    ShippingAddress addr;
+                    string name1_s, name2_s, street1_s, street2_s;
+                    string city_s, state_s, zip_s, country_s;
+                    g_print("\nPlease enter the first line of the name field.\n");
+                    g_print("\033[1m>>>\033[0m ");
+                    getline(cin, name1_s);
+                    string name1_ts;
+                    for (auto c : name1_s) {
+                        if (!isspace(c))
+                            name1_ts += c;
+                    }
+                    if (name1_ts.empty()) {
+                        g_printerr("This field cannot be blank.\n");
+                        g_printerr("No changes made.\n\n");
+                        continue;
+                    }
+                    g_print("Please enter the second line of the name field.\n");
+                    g_print("If you do not need a second line for this field, just press enter.\n");
+                    g_print("\033[1m>>>\033[0m ");
+                    getline(cin, name2_s);
+                    string name2_ts;
+                    for (auto c : name2_s) {
+                        if (!isspace(c))
+                            name2_ts += c;
+                    }
+                    if (!name2_ts.empty()) {
+                        name1_s.append("\n");
+                        name1_s.append(name2_s);
+                    }
+                    addr.changeShippingName(name1_s);
+
+                    g_print("Please enter the first line of the street address field.\n");
+                    g_print("\033[1m>>>\033[0m ");
+                    getline(cin, street1_s);
+                    string street1_ts;
+                    for (auto c : street1_s) {
+                        if (!isspace(c))
+                            street1_ts += c;
+                    }
+                    if (street1_ts.empty()) {
+                        g_printerr("This field cannot be blank.\n");
+                        g_printerr("No changes made.\n\n");
+                        continue;
+                    }
+
+                    g_print("Please enter the second line of the street address field.\n");
+                    g_print("If you do not need a second line for this field, just press enter.\n");
+                    g_print("\033[1m>>>\033[0m ");
+                    getline(cin, street2_s);
+                    string street2_ts;
+                    for (auto c : street2_s) {
+                        if (!isspace(c))
+                            street2_ts += c;
+                    }
+                    if (!street2_ts.empty()) {
+                        street1_s.append("\n");
+                        street1_s.append(street2_s);
+                    }
+                    addr.changeStreet(street1_s);
+
+                    g_print("Please enter the city field.\n");
+                    g_print("\033[1m>>>\033[0m ");
+                    getline(cin, city_s);
+                    string city_ts;
+                    for (auto c : city_s) {
+                        if (!isspace(c))
+                            city_ts += c;
+                    }
+                    if (city_ts.empty()) {
+                        g_printerr("This field cannot be blank.\n\n");
+                        g_printerr("This field cannot be blank.\n");
+                        g_printerr("No changes made.\n\n");
+                        continue;
+                    }
+                    addr.changeCity(city_s);
+
+                    g_print("Please enter the state/province/territory field.\n");
+                    g_print("\033[1m>>>\033[0m ");
+                    getline(cin, state_s);
+                    string state_ts;
+                    for (auto c : state_s) {
+                        if (!isspace(c))
+                            state_ts += c;
+                    }
+                    if (state_ts.empty()) {
+                        g_printerr("This field cannot be blank.\n");
+                        g_printerr("No changes made.\n\n");
+                        continue;
+                    }
+                    addr.changeState(state_s);
+
+                    g_print("Please enter the postal code field.\n");
+                    g_print("\033[1m>>>\033[0m ");
+                    getline(cin, zip_s);
+                    unsigned int zip;
+                    try {
+                        zip = (unsigned int)stoul(zip_s);
+                    } catch (const invalid_argument &e) {
+                        g_printerr("This is not a valid entry for this field.\n");
+                        g_printerr("Currently, only numerical postal codes are accepted.\n");
+                        g_printerr("Sorry, Canadian customers! You'll have to call in to place an order.\n");
+                        g_printerr("No changes made.\n\n");
+                        continue;
+                    }
+                    addr.changeZip(zip);
+
+                    g_print("Please enter the country field.\n");
+                    g_print("\033[1m>>>\033[0m ");
+                    getline(cin, country_s);
+                    string country_ts;
+                    for (auto c : country_s) {
+                        if (!isspace(c))
+                            country_ts += c;
+                    }
+                    if (country_ts.empty()) {
+                        g_printerr("This field cannot be blank.\n");
+                        g_printerr("No changes made.\n\n");
+                        continue;
+                    }
+                    addr.changeCountry(country_s);
+
+                    vector<string> addr_vs;
+                    g_print("\n");
+                    g_print("You entered:\n\n");
+                    addr_vs = split(addr.shipping_name, '\n');
+                    for (auto nameline : addr_vs) {
+                        g_print("  %s\n", nameline.c_str());
+                    }
+                    addr_vs = split(addr.street, '\n');
+                    for (auto streetline : addr_vs) {
+                        g_print("  %s\n", streetline.c_str());
+                    }
+                    g_print("  %s, %s %u\n", addr.city.c_str(), addr.state.c_str(), addr.zip);
+                    g_print("  %s\n\n", addr.country.c_str());
+
+                    g_print("Is this correct [Y/n]? ");
+                    getline(cin, cmd);
+                    if (cmd.front() == 'n' || cmd.front() == 'N') {
+                        g_print("No changes made.\n\n");
+                        continue;
+                    }
+                    globals::logged_in.changeShippingAddress(addr);
+                    g_print("New address set.\n\n");
                 } else if (cmd_parts[0] == "pay") {
+                    unsigned long cc_num;
+                    unsigned int cc_cv2;
+                    string cc_exp, num_s, cv2_s;
+                    g_print("\nPlease enter your card number.\n");
+                    g_print("\033[1m>>>\033[0m ");
+                    getline(cin, num_s);
+                    try {
+                        cc_num = stoul(num_s);
+                    } catch (const invalid_argument &e) {
+                        g_printerr("This is not a valid entry for this field.\n");
+                        g_printerr("No changes made.\n\n");
+                        continue;
+                    }
+
+                    g_print("Please enter the expiration date of the card.\n");
+                    g_print("\033[1m>>>\033[0m ");
+                    getline(cin, cc_exp);
+                    string exp_ts;
+                    for (auto c : cc_exp) {
+                        if (!isspace(c))
+                            exp_ts += c;
+                    }
+                    if (exp_ts.empty()) {
+                        g_printerr("This field cannot be blank.\n");
+                        g_printerr("No changes made.\n\n");
+                        continue;
+                    }
+
+                    g_print("Please enter your card's cv2/cvv2/cvv number.\n");
+                    g_print("\033[1m>>>\033[0m ");
+                    getline(cin, cv2_s);
+                    try {
+                        cc_cv2 = (unsigned int)stoul(num_s);
+                    } catch (const invalid_argument &e) {
+                        g_printerr("This is not a valid entry for this field.\n");
+                        g_printerr("No changes made.\n\n");
+                        continue;
+                    }
+
+                    PaymentInfo cc(cc_num, cc_exp, cc_cv2);
+
+                    g_print("\n");
+                    g_print("You entered:\n\n");
+                    g_print("  %lu\n", cc.cc_num);
+                    g_print("  Exp: %s\tCV2:%u\n\n", cc.cc_exp.c_str(), cc.cc_cv2);
+
+                    g_print("Is this correct [Y/n]? ");
+                    getline(cin, cmd);
+                    if (cmd.front() == 'n' || cmd.front() == 'N') {
+                        g_print("No changes made.\n\n");
+                        continue;
+                    }
+                    globals::logged_in.changeCreditCard(cc);
+                    g_print("New payment method set.\n\n");
                 } else if (cmd_parts[0] == "orders") {
                 } else {
                     g_printerr("'%s' is an unrecognized command.\n", cmd_parts[0].c_str());
