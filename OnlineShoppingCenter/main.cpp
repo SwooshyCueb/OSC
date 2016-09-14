@@ -122,13 +122,50 @@ int main(int argc, char *argv[]) {
             g_print("Exiting.\n");
             exit(0);
         } else if (cmd_parts[0] == "addtocart") {
-            // code goes here
+            if (cmd_parts.size() < 2) {
+                g_printerr("Invalid use of addtocart.\n");
+                goto mainhelp;
+            }
+            Product prod;
+            unsigned int qty;
+            try {
+                prod = globals::local_storage.getProduct(stoul(cmd_parts[1]));
+            } catch (const system_error &e) {
+                g_printerr("'%s' is not a valid UPC.\n", cmd_parts[1].c_str());
+                continue;
+            } catch (const invalid_argument &e) {
+                g_printerr("'%s' is not a valid UPC.\n", cmd_parts[1].c_str());
+                continue;
+            }
+            if (cmd_parts.size() == 2) {
+                qty = 1;
+            } else {
+                try {
+                    qty = (unsigned int)stoul(cmd_parts[2]);
+                } catch (const invalid_argument &e) {
+                    g_printerr("'%s' is not a valid quantity.\n", cmd_parts[2].c_str());
+                    goto mainhelp;
+                }
+            }
+            if (qty > prod.getQuantity()) {
+                g_printerr("WARNING: There are only %u of this item in stock.\n", prod.getQuantity());
+                g_printerr("         The specified quantity %u is greater than our on-hand count.\n", qty);
+                g_printerr("         You will not be able to checkout with an invalid quantity.\n");
+                g_printerr("         WE CANNOT PLACE ITEMS ON BACKORDER.\n");
+            }
+            if (qty == 1) {
+                globals::logged_in.shopping_cart.addProduct(prod);
+            } else {
+                globals::logged_in.shopping_cart.addProduct(prod, qty);
+            }
+            g_print("%u of %s added to cart.\n", qty, prod.getName().c_str());
+            goto mainshell;
         } else if (cmd_parts[0] == "cart") {
             // code goes here
         } else if (cmd_parts[0] == "profile") {
             // code goes here
         } else {
-            g_print("'%s' is an unrecognized command.\n", cmd_parts[0].c_str());
+            g_printerr("'%s' is an unrecognized command.\n", cmd_parts[0].c_str());
             goto mainhelp;
         }
     }

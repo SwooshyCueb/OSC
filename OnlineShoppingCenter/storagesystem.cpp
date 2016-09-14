@@ -272,8 +272,13 @@ Product StorageSystem::getProduct(SKU UPC) {
     entry_descriptors.push_back(DBEntryDescriptor(to_string(UPC),
                                                   rocks_entry_cfg));
 
-    DB::OpenForReadOnly(rocks_db_cfg, "./OSCdb/products", entry_descriptors,
-                        &entry_handles, &productdb);
+    err = DB::OpenForReadOnly(rocks_db_cfg, "./OSCdb/products",
+                              entry_descriptors, &entry_handles, &productdb);
+
+    if (!err.ok()) {
+        throw system_error(int(err.code()), generic_category(),
+                           "Error opening product database: " + err.ToString());
+    }
 
     Product ret;
     ret.setUPC(UPC);
