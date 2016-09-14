@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
         g_print("  exit                      Log out and close OSC\n");
         g_print("\n");
         mainshell:
-        g_print(">>> ");
+        g_print("\033[1m>>>\033[0m ");
         getline(cin, cmd);
         cmd_parts = split(cmd, ' ');
         if (cmd_parts.empty()) {
@@ -161,7 +161,50 @@ int main(int argc, char *argv[]) {
             g_print("%u of %s added to cart.\n", qty, prod.getName().c_str());
             goto mainshell;
         } else if (cmd_parts[0] == "cart") {
-            // code goes here
+            while (true) {
+                g_print("\n\033[1;4mShopping cart:\033[0m\n");
+                bool invalid_qty = false;
+                float total = 0;
+                for (auto prod_spp : globals::logged_in.shopping_cart.cart) {
+                    total += prod_spp.second.first.getPrice() * float(prod_spp.second.second);
+                    g_print("%lu:\t\033[1m%s\033[0m\n  ", prod_spp.first, prod_spp.second.first.getName().c_str());
+                    g_print("Qty: %u\t", prod_spp.second.second);
+                    g_print("Price: $%04.2f ($%04.2f/ea)\n", prod_spp.second.first.getPrice() * float(prod_spp.second.second), prod_spp.second.first.getPrice());
+                    if (prod_spp.second.second > prod_spp.second.first.getQuantity()) {
+                        invalid_qty = true;
+                    }
+                }
+                g_print("\033[1mTotal: $%04.2f\033[0m\n", total);
+                if (invalid_qty) {
+                    g_printerr("\n");
+                    g_printerr("WARNING: One or more entries in your cart have an invalid qauntity.\n");
+                    g_printerr("         You will not be able to checkout with an invalid quantity.\n");
+                    g_printerr("         WE CANNOT PLACE ITEMS ON BACKORDER.\n");
+                }
+                carthelp:
+                g_print("\n\033[1;4mAvailable commands:\033[0m\n");
+                g_print("  changeqty <UPC> <qty>     Change quantity of item\n");
+                g_print("  remove <UPC>              Remove item from cart\n");
+                g_print("  clear                     Remove all items from cart\n");
+                g_print("  back                      Back to main menu\n");
+                g_print("  exit                      Log out and close OSC\n");
+                g_print("\n");
+                cartshell:
+                g_print("\033[1m>>>\033[0m ");
+                getline(cin, cmd);
+                cmd_parts = split(cmd, ' ');
+                if (cmd_parts.empty()) {
+                    goto cartshell;
+                } else if (cmd_parts[0] == "exit") {
+                    g_print("Exiting.\n");
+                    exit(0);
+                } else if (cmd_parts[0] == "back") {
+                    break;
+                } else {
+                    g_printerr("'%s' is an unrecognized command.\n", cmd_parts[0].c_str());
+                    goto carthelp;
+                }
+            }
         } else if (cmd_parts[0] == "profile") {
             // code goes here
         } else {
