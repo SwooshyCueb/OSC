@@ -101,6 +101,9 @@ int main(int argc, char *argv[]) {
         vector<SKU> prodlist = globals::local_storage.getProducts();
         for (auto upc : prodlist) {
             Product prod = globals::local_storage.getProduct(upc);
+            if (prod.getQuantity() == 0) {
+                continue;
+            }
             g_print("%lu:\t\033[1m%s\033[0m\n  ", upc, prod.getName().c_str());
             g_print("Price: $%04.2f\t", prod.getPrice());
             g_print("On hand: %u\t", prod.getQuantity());
@@ -110,7 +113,7 @@ int main(int argc, char *argv[]) {
         g_print("\n\033[1;4mAvailable commands:\033[0m\n");
         g_print("  addtocart <UPC> [qty]     Add product to cart\n");
         g_print("  cart                      Manage shopping cart\n");
-        g_print("  profile                   Manage personal information\n");
+        g_print("  account                   Manage OSC account\n");
         g_print("  exit                      Log out and close OSC\n");
         g_print("\n");
         mainshell:
@@ -319,7 +322,7 @@ int main(int argc, char *argv[]) {
                         string city_s, state_s, zip_s, country_s;
                         g_print("We need a shipping address for this order\n\n");
                         g_print("Please enter the first line of the name field.\n");
-                        g_print(">>> ");
+                        g_print("\033[1m>>>\033[0m ");
                         getline(cin, name1_s);
                         string name1_ts;
                         for (auto c : name1_s) {
@@ -333,7 +336,7 @@ int main(int argc, char *argv[]) {
 
                         g_print("Please enter the second line of the name field.\n");
                         g_print("If you do not need a second line for this field, just press enter.\n");
-                        g_print(">>> ");
+                        g_print("\033[1m>>>\033[0m ");
                         getline(cin, name2_s);
                         string name2_ts;
                         for (auto c : name2_s) {
@@ -347,7 +350,7 @@ int main(int argc, char *argv[]) {
                         addr.changeShippingName(name1_s);
 
                         g_print("Please enter the first line of the street address field.\n");
-                        g_print(">>> ");
+                        g_print("\033[1m>>>\033[0m ");
                         getline(cin, street1_s);
                         string street1_ts;
                         for (auto c : street1_s) {
@@ -361,7 +364,7 @@ int main(int argc, char *argv[]) {
 
                         g_print("Please enter the second line of the street address field.\n");
                         g_print("If you do not need a second line for this field, just press enter.\n");
-                        g_print(">>> ");
+                        g_print("\033[1m>>>\033[0m ");
                         getline(cin, street2_s);
                         string street2_ts;
                         for (auto c : street2_s) {
@@ -375,7 +378,7 @@ int main(int argc, char *argv[]) {
                         addr.changeStreet(street1_s);
 
                         g_print("Please enter the city field.\n");
-                        g_print(">>> ");
+                        g_print("\033[1m>>>\033[0m ");
                         getline(cin, city_s);
                         string city_ts;
                         for (auto c : city_s) {
@@ -389,7 +392,7 @@ int main(int argc, char *argv[]) {
                         addr.changeCity(city_s);
 
                         g_print("Please enter the state/province/territory field.\n");
-                        g_print(">>> ");
+                        g_print("\033[1m>>>\033[0m ");
                         getline(cin, state_s);
                         string state_ts;
                         for (auto c : state_s) {
@@ -403,7 +406,7 @@ int main(int argc, char *argv[]) {
                         addr.changeState(state_s);
 
                         g_print("Please enter the postal code field.\n");
-                        g_print(">>> ");
+                        g_print("\033[1m>>>\033[0m ");
                         getline(cin, zip_s);
                         unsigned int zip;
                         try {
@@ -417,7 +420,7 @@ int main(int argc, char *argv[]) {
                         addr.changeZip(zip);
 
                         g_print("Please enter the country field.\n");
-                        g_print(">>> ");
+                        g_print("\033[1m>>>\033[0m ");
                         getline(cin, country_s);
                         string country_ts;
                         for (auto c : country_s) {
@@ -473,7 +476,7 @@ int main(int argc, char *argv[]) {
                         string cc_exp, num_s, cv2_s;
                         g_print("\nWe need a payment method for this order\n\n");
                         g_print("Please enter your card number.\n");
-                        g_print(">>> ");
+                        g_print("\033[1m>>>\033[0m ");
                         getline(cin, num_s);
                         try {
                             cc_num = stoul(num_s);
@@ -483,7 +486,7 @@ int main(int argc, char *argv[]) {
                         }
 
                         g_print("Please enter the expiration date of the card.\n");
-                        g_print(">>> ");
+                        g_print("\033[1m>>>\033[0m ");
                         getline(cin, cc_exp);
                         string exp_ts;
                         for (auto c : cc_exp) {
@@ -496,7 +499,7 @@ int main(int argc, char *argv[]) {
                         }
 
                         g_print("Please enter your card's cv2/cvv2/cvv number.\n");
-                        g_print(">>> ");
+                        g_print("\033[1m>>>\033[0m ");
                         getline(cin, cv2_s);
                         try {
                             cc_cv2 = (unsigned int)stoul(num_s);
@@ -539,8 +542,8 @@ int main(int argc, char *argv[]) {
                     g_print("\033[4mShip to:\033[0m\n");
                     g_print("%s\n", order.shipping_address.shipping_name.c_str());
                     g_print("%s\n", order.shipping_address.street.c_str());
-                    g_print("%s, %s %u\n", globals::logged_in.shipping_address.city.c_str(), globals::logged_in.shipping_address.state.c_str(), globals::logged_in.shipping_address.zip);
-                    g_print("%s\n\n", globals::logged_in.shipping_address.country.c_str());
+                    g_print("%s, %s %u\n", order.shipping_address.city.c_str(), order.shipping_address.state.c_str(), order.shipping_address.zip);
+                    g_print("%s\n\n", order.shipping_address.country.c_str());
 
                     g_print("\033[4mPayment method:\033[0m\n");
                     g_print("Card ending in %lu, expiring on %s\n\n\n", order.payment_info.cc_num % (unsigned long)10000, order.payment_info.cc_exp.c_str());
@@ -557,8 +560,51 @@ int main(int argc, char *argv[]) {
                     goto carthelp;
                 }
             }
-        } else if (cmd_parts[0] == "profile") {
-            // code goes here
+        } else if (cmd_parts[0] == "account") {
+            while(true) {
+                g_print("\n\033[1;4mAccount Details:\033[0m\n");
+                if (globals::logged_in.shipping_address.is_set) {
+                    g_print("\n\033[4mShipping address:\033[0m\n");
+                    g_print("%s\n", globals::logged_in.shipping_address.shipping_name.c_str());
+                    g_print("%s\n", globals::logged_in.shipping_address.street.c_str());
+                    g_print("%s, %s %u\n", globals::logged_in.shipping_address.city.c_str(), globals::logged_in.shipping_address.state.c_str(), globals::logged_in.shipping_address.zip);
+                    g_print("%s\n\n", globals::logged_in.shipping_address.country.c_str());
+                } else {
+                    g_print("No shipping address on file.\n");
+                }
+                if (globals::logged_in.payment_info.is_set) {
+                    g_print("\033[4mPayment method:\033[0m\n");
+                    g_print("Card ending in %lu, expiring on %s\n", globals::logged_in.payment_info.cc_num % (unsigned long)10000, globals::logged_in.payment_info.cc_exp.c_str());
+                } else {
+                    g_print("No payment method on file.\n");
+                }
+                acchelp:
+                g_print("\n\033[1;4mAvailable commands:\033[0m\n");
+                g_print("  addr                      Change/set shipping address\n");
+                g_print("  pay                       Change/set payment method\n");
+                g_print("  orders                    View order history\n");
+                g_print("  back                      Back to main menu\n");
+                g_print("  exit                      Log out and close OSC\n");
+                g_print("\n");
+                accshell:
+                g_print("\033[1m>>>\033[0m ");
+                getline(cin, cmd);
+                cmd_parts = split(cmd, ' ');
+                if (cmd_parts.empty()) {
+                    goto accshell;
+                } else if (cmd_parts[0] == "exit") {
+                    g_print("Exiting.\n");
+                    exit(0);
+                } else if (cmd_parts[0] == "back") {
+                    break;
+                } else if (cmd_parts[0] == "addr") {
+                } else if (cmd_parts[0] == "pay") {
+                } else if (cmd_parts[0] == "orders") {
+                } else {
+                    g_printerr("'%s' is an unrecognized command.\n", cmd_parts[0].c_str());
+                    goto acchelp;
+                }
+            }
         } else {
             g_printerr("'%s' is an unrecognized command.\n", cmd_parts[0].c_str());
             goto mainhelp;
