@@ -1,5 +1,9 @@
 CSE 4233 Software Architecture & Design Paradigms
 Assignment 3
+Joseph Merrell-White    <jam927@msstate.edu>
+Mauri Mitchell          <mlm839@msstate.edu>
+Stephon Thornton        <ust3@msstate.edu>
+Justin Wagner           <jlw15@msstate.edu>
 
 You will need QtCreator 4.1+/qmake, libpcre4, and libuuid in order to build
 this project. OSC.pro is the qmake/qtcreator project file you should open. Do
