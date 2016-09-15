@@ -35,7 +35,7 @@ Transaction::Transaction(ShoppingCart cart) {
     }
 }
 
-char Transaction::chargeCreditCard() {
+int Transaction::chargeCreditCard() {
     time_t t = time(NULL);
     transaction_date = *(gmtime(&t));
     is_finalized = true;
@@ -56,27 +56,27 @@ char Transaction::chargeCreditCard() {
     return 1;
 }
 
-char Transaction::setTransactionDate(tm date) {
+int Transaction::setTransactionDate(tm date) {
     this->transaction_date = date;
     return 1;
 }
 
-char Transaction::setShoppingCart(ShoppingCart cart) {
+int Transaction::setShoppingCart(ShoppingCart cart) {
     this->shopping_cart = cart;
     return 1;
 }
 
-char Transaction::setTransactionAmt(float amt) {
+int Transaction::setTransactionAmt(float amt) {
     this->transaction_amount = amt;
     return 1;
 }
 
-char Transaction::setPaymentInfo(PaymentInfo info) {
+int Transaction::setPaymentInfo(PaymentInfo info) {
     this->payment_info = info;
     return 1;
 }
 
-char Transaction::setShippingAddress(ShippingAddress addr) {
+int Transaction::setShippingAddress(ShippingAddress addr) {
     this->shipping_address = addr;
     return 1;
 }

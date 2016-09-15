@@ -1,0 +1,20 @@
+CSE 4233 Software Architecture & Design Paradigms
+Assignment 3
+
+You will need QtCreator 4.1+/qmake, libpcre4, and libuuid in order to build
+this project. OSC.pro is the qmake/qtcreator project file you should open. Do
+not open OnlineShoppingCenter.pro directly. As well, an active internet
+connection is required the first time you build rocksdb.
+
+Once you have the software built, just run './OnlineShoppingCenter --help' to
+get information on how to populate a sample database, and how to login from the
+terminal. There are four sample users that will be put in the sample databse:
+testuser001, testuser002, testuser003, and testuser004. You may log in with any
+of them.
+
+Once you've logged in, the console user interface should be fairly
+self-explanatory. I highly recommend increasing the height of your terminal,
+however. As well, there are a few things that may not seem obvious at first.
+For example, the commands available in the cart menu change based on what's in
+the cart. If you have an invalid quantity, you cannot check out. If the cart is
+empty, you can't do much at all in the cart menu.

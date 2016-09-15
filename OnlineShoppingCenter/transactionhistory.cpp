@@ -8,9 +8,9 @@ TransactionHistory::TransactionHistory()
 }
 
 TransactionHistory::TransactionHistory(Transaction trans) {
-    this->transaction_list.push_back(trans);
+    transaction_list.push_back(trans);
 }
-char TransactionHistory::addTransaction(Transaction trans) {
-    this->transaction_list.push_back(trans);
+int TransactionHistory::addTransaction(Transaction trans) {
+    transaction_list.push_back(trans);
     return 1;
 }

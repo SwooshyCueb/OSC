@@ -476,6 +476,18 @@ Transaction StorageSystem::getTransaction(uuid_t id) {
     return ret;
 }
 
+/* StorageSystem::initDB() was written before any of the methods for fetching or
+ * storing data from the db were functional. Therefore, it was written to
+ * manually set each individual database entry and field, so that we could have
+ * a populated database without having to wait on the rest of the StorageSystem
+ * class to be implemented. As such, this method is an absolute mess. Given more
+ * time, I would rewrite it to construct objects and use the other StorageSystem
+ * methods, therefore making it much, much neater. However, it is currently
+ * 19:44 on the date that this project is due, and I have been throwing myself
+ * at this project to an unhealthy degree for the past week, so I have neither
+ * the time, nor the energy, to do very much beyond making sure the code works
+ * and adheres to spec.
+ */
 int StorageSystem::initDB() {
     rocksErr err;
     vector<DBEntryDescriptor> entry_descriptors;

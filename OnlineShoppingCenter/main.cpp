@@ -33,6 +33,13 @@ static GOptionEntry entries[] =
 };
 #pragma GCC diagnostic warning "-Wmissing-field-initializers"
 
+/* The main function contains all the code for the command line interface. I
+ * feel it might have been a lot neater, and much better practice to write a new
+ * class for this, rather than shoving it all in main(), however, in the,
+ * interest of time, and in the interest of adhering as closely as possible to
+ * our initial diagrams from assignment 2, which we have already had to deviate
+ * from significantly.
+ */
 int main(int argc, char *argv[]) {
     GError *error = NULL;
     GOptionContext *context;
