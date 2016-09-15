@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <system_error>
+#include <cmath>
 
 using namespace std;
 
@@ -797,6 +798,73 @@ int main(int argc, char *argv[]) {
                     globals::logged_in.changeCreditCard(cc);
                     g_print("New payment method set.\n\n");
                 } else if (cmd_parts[0] == "orders") {
+                    if (globals::logged_in.transaction_history.transaction_list.empty()) {
+                        g_print("No past orders.\n");
+                        goto accshell;
+                    }
+                    while(true) {
+                        g_print("\n\033[1;4mOrder history:\033[0m\n");
+                        unsigned int idx = 1;
+                        char tid_cs[37];
+                        char time_cs[81];
+                        unsigned int idx_w = ((unsigned int)log10(globals::logged_in.transaction_history.transaction_list.size())+1);
+                        if (idx_w < 3)
+                            idx_w = 3;
+                        for (auto t : globals::logged_in.transaction_history.transaction_list) {
+                            uuid_unparse_lower(t.transaction_id, (char *)tid_cs);
+                            g_print("%0*u:\t%s\n", idx_w, idx, (char *)tid_cs);
+                            strftime((char *)time_cs, 81, "%a, %d %b %Y %H:%M:%S", &t.transaction_date);
+                            g_print("  Date: %s   Total: $%04.2f\n", (char *)time_cs, t.transaction_amount);
+                            idx++;
+                        }
+                        g_print("\n\n");
+                        thelp:
+                        g_print("Enter the index number of the transaction you wish to view.\n"
+                                "You can also enter 'back' to go back to the account menu,\n"
+                                "or 'exit' to log out of OSC.\n");
+                        tshell:
+                        g_print("\033[1m>>>\033[0m ");
+                        getline(cin, cmd);
+                        cmd_parts = split(cmd, ' ');
+                        if (cmd_parts.empty()) {
+                            goto tshell;
+                        } else if (cmd_parts[0] == "exit") {
+                            g_print("Exiting.\n");
+                            exit(0);
+                        } else if (cmd_parts[0] == "back") {
+                            break;
+                        } else {
+                            int t_idx;
+                            try {
+                                t_idx = (unsigned int)stoul(cmd_parts[0]);
+                            } catch (const invalid_argument &e) {
+                                goto thelp;
+                            }
+                            Transaction t;
+                            try {
+                                t = globals::logged_in.transaction_history.transaction_list.at(t_idx-1);
+                            } catch (const out_of_range &e) {
+                                continue;
+                            }
+                            uuid_unparse_lower(t.transaction_id, (char *)tid_cs);
+                            strftime((char *)time_cs, 81, "%a, %d %b %Y %H:%M:%S", &t.transaction_date);
+                            g_print("\n\n\033[1;4mOrder %s:\033[0m\n\n", (char *)tid_cs);;
+                            for (auto prod_spp : t.shopping_cart.cart) {
+                                g_print("%lu:\t\033[1m%s\033[0m\n  ", prod_spp.first, prod_spp.second.first.getName().c_str());
+                                g_print("Qty: %u\n", prod_spp.second.second);
+                            }
+                            g_print("Date: %s     Total: $%04.2f\n\n", (char *)time_cs, t.transaction_amount);
+
+                            g_print("\033[4mShip to:\033[0m\n");
+                            g_print("%s\n", t.shipping_address.shipping_name.c_str());
+                            g_print("%s\n", t.shipping_address.street.c_str());
+                            g_print("%s, %s %u\n", t.shipping_address.city.c_str(), t.shipping_address.state.c_str(), t.shipping_address.zip);
+                            g_print("%s\n\n", t.shipping_address.country.c_str());
+                            g_print("\033[4mPayment method:\033[0m\n");
+                            g_print("Card ending in %lu, expiring on %s\n\n\n", t.payment_info.cc_num % (unsigned long)10000, t.payment_info.cc_exp.c_str());
+                            goto tshell;
+                        }
+                    }
                 } else {
                     g_printerr("'%s' is an unrecognized command.\n", cmd_parts[0].c_str());
                     goto acchelp;

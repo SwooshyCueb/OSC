@@ -4,6 +4,10 @@
 
 using namespace std;
 
+Transaction::Transaction() {
+
+}
+
 Transaction::Transaction(ShoppingCart cart, PaymentInfo pay) {
     this->shopping_cart = cart;
     this->payment_info = pay;
